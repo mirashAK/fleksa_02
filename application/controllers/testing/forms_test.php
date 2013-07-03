@@ -16,8 +16,8 @@ class Forms_Test extends Test_Controller
     var_export($reg_form->validate()); echo('<br/>');
     var_export($reg_form->value);
     
-    $this->view_data['auth_form'] = $this->parser->parse_string($form->draw_form('layouts/testing/forms/auth_form'), $this->view_data, true);
-    $this->view_data['reg_form'] = $this->parser->parse_string($reg_form->draw_form('layouts/testing/forms/reg_form'), $this->view_data, true);
+    $this->view_data['auth_form'] = $this->parse_form($form->draw_form('layouts/testing/forms/auth_form'));
+    $this->view_data['reg_form'] = $this->parse_form($reg_form->draw_form('layouts/testing/forms/reg_form'));
      
     if (!$this->input->is_ajax_request()) $this->parse_out('layouts/testing/forms_test_view');
  }
@@ -36,11 +36,11 @@ class Forms_Test extends Test_Controller
           $this->user_session->pass_reset_token = true;
           $this->view_data['pass_form'] = '<a href="'.sub_url().$reset_link.'" id="reset_pass_link">'.sub_url().$reset_link.'</a>';
         }
-        else $this->view_data['pass_form'] = $this->parser->parse_string($form->draw_form('layouts/testing/forms/pass_email_form'), $this->view_data, true);
+        else $this->view_data['pass_form'] = $this->parse_form($form->draw_form('layouts/testing/forms/pass_email_form'));
       }
       else
       {
-        $this->view_data['pass_form'] = $this->parser->parse_string($form->draw_form('layouts/testing/forms/pass_email_form'), $this->view_data, true);
+        $this->view_data['pass_form'] = $this->parse_form($form->draw_form('layouts/testing/forms/pass_email_form'));
       }
     }
     else
@@ -57,7 +57,7 @@ class Forms_Test extends Test_Controller
       }
       else
       {
-        $this->view_data['pass_form'] = $this->parser->parse_string($form->draw_form('layouts/testing/forms/reset_pass_form'), $this->view_data, true);
+        $this->view_data['pass_form'] = $this->parse_form($form->draw_form('layouts/testing/forms/reset_pass_form'));
       }
     }
     
