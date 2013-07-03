@@ -36,6 +36,9 @@
         <p>Reg form:
         {reg_form}</p>
         
+        <p>Logout:
+        <a href="{sub_url}testing/session_test/logout">Logout</a></p>
+        
 	</div>
 
 	<p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds</p>

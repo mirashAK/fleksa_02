@@ -55,6 +55,19 @@ class User
     return $this->user_mdl->token_passwd($email);
   }
   
+  public function logout ()
+  {
+    $new_token = $this->user_mdl->logout($this);
+    if (!empty($new_token))
+    {
+      $this->user_session->sess_token = $new_token;
+      $this->input->set_cookie('user_token', $new_token, 31536000);
+      $this->_set_values();
+      return true;
+    }
+    else return false;
+  }
+  
   public function reset_passwd ($token, $new_passwd)
   {
     if (!empty($token) && !empty($new_passwd))

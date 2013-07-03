@@ -86,4 +86,20 @@ class Flx_User extends Flx_Model
     else return false;
   }
   
+  public function logout(&$user)
+  {
+    $sql = "SELECT logout_user (?,?) AS 'new_token' ;";
+    if (!empty($user))
+    {
+      $first_result = $this->db->query($sql, array($user->user_token, $user->user_ip));
+      
+      if (!empty($first_result) && $first_result->num_rows() == 1)
+      {
+        $first_result = $first_result->row_array();
+        return $first_result['new_token'];
+      }
+    }
+    else return false;
+  }
+  
 }

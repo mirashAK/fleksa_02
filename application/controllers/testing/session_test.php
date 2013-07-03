@@ -64,6 +64,12 @@ class Session_Test extends Test_Controller {
       if ($this->user_session->registered == true)
         redirect(sub_url($this->config->item('language').'/testing/session_test'), 'refresh');
     }
+    
+    public function logout()
+    {
+      $this->load->library('user');
+      if ($this->user->logout() == true) redirect(sub_url($this->config->item('language').'/testing/session_test'), 'refresh');
+    }
 }
 
 /* End of file welcome.php */
