@@ -32,6 +32,7 @@
 	
 		<p>Auth form:
         {auth_form}</p>
+        <p><input id="xhr_auth_button" type="button" value="XHR Auth test" /></p>
         
         <p>Reg form:
         {reg_form}</p>
@@ -43,6 +44,37 @@
 
 	<p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds</p>
 </div>
+
+<script type="text/javascript" src="{base_url}assets/js/jquery.min.js"></script>
+<script type="text/javascript">
+  jQuery(document).ready(function()
+  {
+    jQuery("#xhr_auth_button").on("click", function(event)
+    {
+      jQuery.ajax(
+      {
+        url: jQuery("#auth_form").attr('action'),
+        type: 'post',
+        dataType: 'json',
+        data: {"auth_form" : jQuery("#auth_form").serialize()},
+        success: function(answer)
+        {
+          if (answer.valid == true)
+          {
+            if (answer.redirect !== false) window.location = answer.redirect;
+          }
+          else
+          {
+            for ( name in answer.errors )  { alert( name +': '+ answer.errors[name] ); };
+          }
+        },
+        error: function(e){
+          console.log("error"+e);
+        }
+      });
+    });
+  });
+</script>
 
 </body>
 </html>

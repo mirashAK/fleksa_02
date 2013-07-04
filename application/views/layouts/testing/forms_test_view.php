@@ -36,18 +36,24 @@
 <script type="text/javascript">
   jQuery(document).ready(function()
   {
-    jQuery("xhr_auth_button").on("click", function(event)
+    jQuery("#xhr_auth_button").on("click", function(event)
     {
-      //alert(jQuery("#auth_form").serialize());
       jQuery.ajax(
       {
-        url: '{sub_url}testing/forms_test',
+        url: jQuery("#auth_form").attr('action'),
         type: 'post',
         dataType: 'json',
         data: {"auth_form" : jQuery("#auth_form").serialize()},
         success: function(answer){
-          if (answer.status == false) alert (answer.error);
-          //else window.location.reload();
+          if (answer.valid == true)
+          {
+            if (answer.redirect !== false) window.location = answer.redirect;
+            
+          }
+          else
+          {
+            alert (answer.errors.email);
+          }
           },
         error: function(e){
           console.log("error"+e);

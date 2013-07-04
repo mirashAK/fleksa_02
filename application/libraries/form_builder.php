@@ -1,18 +1,24 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-abstract class Form_Builder
+class Form_Builder
 {
   protected $form_data = null;
   protected $CI = null;
   
+  public $xhr_answer = null;
+  
   //abstract protected function get_data($provided_data = null);
-  abstract protected function draw_form($view_name);
+  //abstract protected function draw_form($view_name, &$view_data = null);
   //abstract protected function validate($custom_config = array());
+  
+  public $errors = array();
   
   function __construct()
   {
     $this->CI =& get_instance();
     $this->CI->load->helper('form_builder_helper');
+    $this->CI->load->library('xhr_answer');
+    $this->xhr_answer = & $this->CI->xhr_answer;
   }
 
   public static function factory ($flx_form_name = '', $flx_form_action = '')
@@ -136,7 +142,7 @@ abstract class Form_Builder
   {
     $errors_arr = array();
     $pass = '';
-
+    
     if ($this->check_request() == true)
     {
       foreach($this->form_data['type'] as $key=>$value)
@@ -156,7 +162,11 @@ abstract class Form_Builder
           break;
         }
       if (empty($errors_arr)) return true;
-      else return $errors_arr;
+      else
+      {
+        $this->errors = $errors_arr;
+        return false;
+      }
     }
     else return false;
   }
@@ -191,6 +201,25 @@ abstract class Form_Builder
         
     return false;
   }
+  
+  public function draw_form($view_name, &$view_data = null)
+  {
+    if (!empty($view_data)) $this->form_data = array_merge($this->form_data, $view_data);
+    //echo(draw_partial_input($this->form_data, 'u_soname'));
+    $this->types_transform_to_HTML();
+    
+    if ($this->CI->input->is_ajax_request() === true)
+    {
+      if (!empty($this->errors))
+      {
+        $this->xhr_answer->valid = false;
+        $this->xhr_answer->errors = $this->errors;
+      }
+      $this->xhr_answer->view = $this->CI->parser->parse($view_name, $this->form_data, true);
+      $this->xhr_answer->send();
+    }
+    else return $this->CI->parser->parse($view_name, $this->form_data, true);
+  }
 
 }
 
@@ -208,13 +237,6 @@ class Flx_Auth_Form extends Form_Builder
     $this->get_data_array($provided_data);
   }
 
-  public function draw_form($view_name)
-  {
-    //echo(draw_partial_input($this->form_data, 'u_soname'));
-    $this->types_transform_to_HTML();
-    return $this->CI->parser->parse($view_name, $this->form_data, true);
-  }
-
 }
 
 class Flx_Reg_Form extends Form_Builder
@@ -230,17 +252,11 @@ class Flx_Reg_Form extends Form_Builder
     );
     $this->get_data_array($provided_data);
   }
-
-  public function draw_form($view_name)
-  {
-    $this->types_transform_to_HTML();
-    return $this->CI->parser->parse($view_name, $this->form_data, true);
-  }
 }
 
 class Flx_Edit_Form extends Form_Builder
 {
-  public function draw_form($view_name)
+  public function draw_form($view_name, &$view_data = null)
   {
     if (!empty($this->form_data))
     {
@@ -262,12 +278,6 @@ class Flx_Ch_Pass_Form_Email extends Form_Builder
     );
     $this->get_data_array($provided_data);
   }
-
-  public function draw_form($view_name)
-  {
-    $this->types_transform_to_HTML();
-    return $this->CI->parser->parse($view_name, $this->form_data, true);
-  }
 }
 
 class Flx_Ch_Pass_Form extends Form_Builder
@@ -282,11 +292,5 @@ class Flx_Ch_Pass_Form extends Form_Builder
       'value'   =>array('user_pass'=>'', 'user_re_pass'=>''),
     );
     $this->get_data_array($provided_data);
-  }
-
-  public function draw_form($view_name)
-  {
-    $this->types_transform_to_HTML();
-    return $this->CI->parser->parse($view_name, $this->form_data, true);
   }
 }

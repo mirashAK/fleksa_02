@@ -18,18 +18,25 @@ class User
     $pass = $this->_encrypt_pass($pass);
     
     $new_token = $this->user_mdl->do_auth($this, $email, $pass);
-    if (!empty($new_token))
+    if ($this->user_mdl->check_error($new_token, 'flx_do_auth') == true)
     {
       $this->user_session->sess_token = $new_token;
       $this->input->set_cookie('user_token', $new_token, 31536000);
       $this->_set_values();
+      return true;
     }
+    else return $this->user_mdl->get_error_text($new_token, 'flx_do_auth');
   }
   
   public function add_user ($email, $pass, $login = '')
   {
     $pass = $this->_encrypt_pass($pass);
-    return $this->user_mdl->add_user($email, $pass, $login);
+    $get_params = $this->user_mdl->add_user($email, $pass, $login);
+    if ($this->user_mdl->check_error($get_params, 'flx_add_user') == true)
+    {
+      return $get_params;
+    }
+    else return $this->user_mdl->get_error_text($new_token, 'flx_add_user');
   }
   
   public function reg_user ()
@@ -38,21 +45,16 @@ class User
     if (!empty($token))
     {
       $new_token = $this->user_mdl->reg_user($this, $token);
-      if (!empty($new_token))
+      if ($this->user_mdl->check_error($new_token, 'flx_reg_user') == true)
       {
         $this->user_session->sess_token = $new_token;
         $this->input->set_cookie('user_token', $new_token, 31536000);
         $this->_set_values();
         return true;
       }
-      else return false;
+      else $this->user_mdl->get_error_text($new_token, 'flx_reg_user');
     }
     else return false;
-  }
-  
-  public function token_passwd ($email)
-  {
-    return $this->user_mdl->token_passwd($email);
   }
   
   public function logout ()
@@ -68,20 +70,30 @@ class User
     else return false;
   }
   
+  public function token_passwd ($email)
+  {
+    $get_params = $this->user_mdl->token_passwd($email);
+    if ($this->user_mdl->check_error($get_params, 'flx_token_passwd') == true)
+    {
+      return $get_params;
+    }
+    else $this->user_mdl->get_error_text($get_params, 'flx_token_passwd');
+  }
+  
   public function reset_passwd ($token, $new_passwd)
   {
     if (!empty($token) && !empty($new_passwd))
     {
       $new_passwd = $this->_encrypt_pass($new_passwd);
       $new_token = $this->user_mdl->reset_passwd($this, $token, $new_passwd);
-      if (!empty($new_token))
+      if ($this->user_mdl->check_error($new_token, 'flx_reset_passwd') == true)
       {
         $this->user_session->sess_token = $new_token;
         $this->input->set_cookie('user_token', $new_token, 31536000);
         $this->_set_values();
         return true;
       }
-      else return false;
+      else $this->user_mdl->get_error_text($new_token, 'flx_reset_passwd');
     }
     else return false;
   }

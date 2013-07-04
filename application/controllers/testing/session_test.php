@@ -10,8 +10,8 @@ class Session_Test extends Test_Controller {
       $auth_form = Form_Builder::factory('auth_form', '/testing/session_test/auth');
       $reg_form = Form_Builder::factory('reg_form', '/testing/session_test/add_user');
       
-      $this->view_data['auth_form'] =$this->parser->parse_string($auth_form->draw_form('layouts/testing/forms/auth_form'), $this->view_data, true);
-      $this->view_data['reg_form'] =$this->parser->parse_string($reg_form->draw_form('layouts/testing/forms/reg_form'), $this->view_data, true);
+      $this->view_data['auth_form'] = $auth_form->draw_form('layouts/testing/forms/auth_form', $this->view_data);
+      $this->view_data['reg_form'] = $reg_form->draw_form('layouts/testing/forms/reg_form', $this->view_data);
       
       if ($this->user_session->get_params)
       {
@@ -32,14 +32,19 @@ class Session_Test extends Test_Controller {
 	
 	public function auth()
     {
-    
       $auth_form = Form_Builder::factory('auth_form');
       
       if ($auth_form->validate() == true)
       {
-        $this->user->do_auth($auth_form->user_email, $auth_form->user_pass);
+        $auth_result = $this->user->do_auth($auth_form->user_email, $auth_form->user_pass);
+        if ($auth_result !== true) $auth_form->errors['user_email'][] = $auth_result; 
       }
-      redirect(sub_url($this->config->item('language').'/testing/session_test'), 'refresh');
+      if ($this->input->is_ajax_request())
+      {
+        $auth_form->xhr_answer->redirect = sub_url($this->config->item('language').'/testing/session_test');
+        $auth_form->draw_form('layouts/testing/forms/auth_form', $this->view_data);
+      }
+      else redirect(sub_url($this->config->item('language').'/testing/session_test'), 'refresh');
     }
     
     public function add_user()

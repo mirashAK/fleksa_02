@@ -10,9 +10,7 @@ class Flx_User extends Flx_Model
     {
       // Получаем результат запроса стандартным методом CI
       $first_result = $first_result->row_array();
-      if ($first_result['new_token'] !== '-2' && $first_result['new_token'] !== '-1')
-        return $first_result['new_token'];
-      else return false;
+      return $first_result['new_token'];
     }
     else return false;
   }
@@ -25,8 +23,7 @@ class Flx_User extends Flx_Model
     if (!empty($first_result) && $first_result->num_rows() == 1)
     {
       $first_result = $first_result->row_array();
-      if ($first_result['get_params'] !== '0') return $first_result['get_params'];
-      else return false;
+      return $first_result['get_params'];
     }
     else return false;
   }
@@ -43,10 +40,7 @@ class Flx_User extends Flx_Model
     {
       // Получаем результат запроса стандартным методом CI
       $first_result = $first_result->row_array();
-
-      if ($first_result['new_token'] !== '-2' && $first_result['new_token'] !== '-1' && $first_result['new_token'] !== '0')
-        return $first_result['new_token'];
-      else return false;
+      return $first_result['new_token'];
     }
     else return false;
   }
@@ -78,10 +72,7 @@ class Flx_User extends Flx_Model
     {
       // Получаем результат запроса стандартным методом CI
       $first_result = $first_result->row_array();
-
-      if ($first_result['new_token'] !== '-2' && $first_result['new_token'] !== '-1' && $first_result['new_token'] !== '0')
-        return $first_result['new_token'];
-      else return false;
+      return $first_result['new_token'];
     }
     else return false;
   }

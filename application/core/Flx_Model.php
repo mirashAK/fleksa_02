@@ -3,11 +3,37 @@
   define('CONST_POS_MIDDLE', 'middle');
   define('CONST_POS_FIRST', 'first');
   define('CONST_POS_LAST', 'last');
-
-class Flx_Model extends CI_Model { 
+  
+class Flx_Model extends CI_Model
+{ 
 
   function __construct() {
       parent::__construct();
+      
+      $this->config->load('flx_db_errors');
+      $this->lang->load('flx_db/errors', $this->config->item('language'));
+  }
+  
+  public function check_error ($q_result, $method_name)
+  {
+    if (empty($q_result)) return false; // Get out if input is empty
+    if (empty($method_name)) $method_name = 'flx_db_common';
+    
+    $errors_arr = $this->config->item($method_name);
+    if (array_key_exists($q_result, $errors_arr)) return false; // Found error code
+    
+    return true;
+  }
+  
+  public function get_error_text ($err_code, $method_name)
+  {
+    if (empty($err_code)) return false; // Get out if input is empty
+    if (empty($method_name)) $method_name = 'flx_db_common';
+    
+    $errors_arr = $this->config->item($method_name);
+    if (array_key_exists($err_code, $errors_arr)) return $this->lang->line($errors_arr[$err_code]);
+    
+    return false;
   }
 
   private function get_table (&$user, $table, $where = '', $order = '', $limit = '')

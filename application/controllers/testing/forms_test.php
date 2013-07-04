@@ -10,16 +10,23 @@ class Forms_Test extends Test_Controller
     
     $this->load->model('users_mdl');
     
-    //$form->form_data = $this->users_mdl->get_user($this->user);
+    //$form->form_data = $this->users_mdl->get_user($this->user); !!!
     
-    var_export($form->validate()); echo('<br/>');
-    var_export($reg_form->validate()); echo('<br/>');
-    var_export($reg_form->value);
+    $form->validate();
+    $reg_form->validate();
     
-    $this->view_data['auth_form'] = $this->parse_form($form->draw_form('layouts/testing/forms/auth_form'));
-    $this->view_data['reg_form'] = $this->parse_form($reg_form->draw_form('layouts/testing/forms/reg_form'));
+    if ($this->input->is_ajax_request()) $form->xhr_answer->redirect = sub_url($this->config->item('language').'/testing/forms_test');
+    
+    $this->view_data['auth_form'] = $form->draw_form('layouts/testing/forms/auth_form', $this->view_data);
+    $this->view_data['reg_form'] = $reg_form->draw_form('layouts/testing/forms/reg_form', $this->view_data);
+    
+      var_export($form->errors); echo('<br/>');
+      var_export($form->value); echo('<br/>');
+      
+      var_export($reg_form->errors); echo('<br/>');
+      var_export($reg_form->value); echo('<br/>');
      
-    if (!$this->input->is_ajax_request()) $this->parse_out('layouts/testing/forms_test_view');
+    $this->parse_out('layouts/testing/forms_test_view');
  }
  
   public function reset_pass()

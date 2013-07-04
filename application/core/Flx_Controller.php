@@ -26,12 +26,6 @@ class Flx_Controller extends CI_Controller {
       $this->parser->parse($view_name, $this->view_data);
   }
   
-  protected function parse_form($form)
-  {
-    if (!empty($this->parser))
-      return $this->parser->parse_string($form, $this->view_data, TRUE);
-  }
-  
   protected function set_language()
   {
     $this->config->load('languages');
