@@ -43,7 +43,7 @@ class Flx_URI extends CI_URI
         // Filter segments for security
         $val = trim($this->_filter_uri($val));
         
-        if ($seg_pos == 0 && strlen($val)<=3)
+        if ($seg_pos == 0 && strlen($val)<=3 && strlen($val)>=2)
         {
             $this->lang = $val;
         }

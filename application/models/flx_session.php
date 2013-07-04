@@ -28,7 +28,7 @@ class Flx_Session
   
   public function __destruct()
   {
-    $this->set_session();
+    //$this->set_session();
   }
   
   function get_full_sess_data()

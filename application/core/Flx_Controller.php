@@ -11,6 +11,7 @@ class Flx_Controller extends CI_Controller {
     $this->view_data['base_url'] = base_url();
     $this->view_data['sub_url'] = sub_url();
     $this->view_data['uri_lang'] = $this->config->item('language');
+    $this->view_data['scripts'] = array();
     require_once APPPATH.'libraries/Form_Builder.php';
   }
   
