@@ -154,8 +154,21 @@ class Form_Builder
         switch ($value)
         {
           case 'email':
-              if (strlen($this->form_data['value'][$key]) == 0) $errors_arr[$this->form_data['caption'][$key]][] = 'empty';
+              if (strlen($this->form_data['value'][$key]) == 0)
+              {
+                $errors_arr[$this->form_data['caption'][$key]][] = 'empty';
+                break;
+              }
               if (!preg_match("/.+\@.+\..+/", $this->form_data['value'][$key])) $errors_arr[$this->form_data['caption'][$key]][] = 'not email';
+          break;
+          case 'subdomain':
+              if (strlen($this->form_data['value'][$key]) == 0)
+              { 
+                $errors_arr[$this->form_data['caption'][$key]][] = 'empty';
+                break;
+              }
+              $this->form_data['value'][$key] = strtolower ($this->form_data['value'][$key]);
+              if (!preg_match("/^[a-z]+$/", $this->form_data['value'][$key])) $errors_arr[$this->form_data['caption'][$key]][] = 'forbidden chars';
           break;
           case 'pass':
               $pass = $this->form_data['value'][$key];

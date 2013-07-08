@@ -19,33 +19,38 @@
 <body>
 
 <div id="container">
-	<h1>Welcome to Fleksa v.02 !</h1>
+    <h1>Welcome to Fleksa v.02 !</h1>
 
-	<div id="body">
-		<p>Test some base parameters</p>
+    <div id="body">
+        <p>Test some base parameters</p>
 
-		<p>Config parameters:</p>
-		<code><?php
+        <p>Config parameters:</p>
+        <code><?php
         echo('current_url(): ');var_export(current_url());echo('<br/>');
         echo('sub_domain(): ');var_export(sub_domain());echo('<br/>');
         echo('base_url(): ');var_export(base_url());echo('<br/>');
-        echo('uri_string(): ');var_export(uri_string());echo('<br/>'); 
-        echo('site_url(): ');var_export(site_url('testing/welcome_test'));echo('<br/>');
-        echo('sub_url(): ');var_export(sub_url('/testing/welcome_test'));echo('<br/>');
+        echo('base_url("testing/welcome_test"): ');var_export(base_url('testing/welcome_test'));echo('<br/>');
+        echo('uri_string(): ');var_export(uri_string());echo('<br/>');
+        echo('res_url(): ');var_export(res_url());echo('<br/>'); 
+        echo('res_url("testing/welcome_test"): ');var_export(res_url('testing/welcome_test'));echo('<br/>'); 
+        echo('site_url("testing/welcome_test"): ');var_export(site_url('testing/welcome_test'));echo('<br/>');
+        echo('sub_url(): ');var_export(sub_url());echo('<br/>');
+        echo('sub_url("testing/welcome_test"): ');var_export(sub_url('testing/welcome_test'));echo('<br/>');
+        echo('sub_url("testing/welcome_test", false): ');var_export(sub_url('testing/welcome_test', false));echo('<br/>');
         ?></code>
 
-		<p>Define language:</p>
-		<code><?php var_export($lang); ?><br/>
-		<?php var_export($uri_lang); ?><br/></code>
-		<code>{test_email_missing}</code>
+        <p>Define language:</p>
+        <code><?php var_export($lang); ?><br/>
+        <?php var_export($uri_lang); ?><br/></code>
+        <code>{test_email_missing}</code>
 
-		<p>Test Extended parser</p>
-		<code>{test_arr:social_description}</code><br/>
-		
-		<p>If you are exploring CodeIgniter for the very first time, you should start by reading the <a href="user_guide/">User Guide</a>.</p>
-	</div>
+        <p>Test Extended parser</p>
+        <code>{test_arr:social_description}</code><br/>
+        
+        <p>If you are exploring CodeIgniter for the very first time, you should start by reading the <a href="user_guide/">User Guide</a>.</p>
+    </div>
 
-	<p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds</p>
+    <p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds</p>
 </div>
 
 </body>

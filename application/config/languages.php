@@ -3,4 +3,4 @@
 $config['lang_supported'] = array('ru','uk','en');
 $config['lang_check_browser'] = TRUE;
 $config['lang_redirect'] = TRUE;
-$config['lang_url_include'] = FALSE;
+$config['lang_url_include'] = TRUE;

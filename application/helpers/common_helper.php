@@ -51,6 +51,39 @@ function get_browser_lang()
 }
 
 /**
+* sub_url
+* Form uri with subdomain
+ *
+ * @access  public
+ * @return  string
+ */
+if ( ! function_exists('sub_url'))
+{
+    function sub_url($uri = '',  $include_lang = true)
+    {
+        $CI =& get_instance();
+        return $CI->config->sub_url($uri, $include_lang);
+    }
+}
+
+/**
+* res_url
+* Form uri with subdomain
+ *
+ * @access  public
+ * @return  string
+ */
+if ( ! function_exists('res_url'))
+{
+    function res_url($uri = '')
+    {
+        $CI =& get_instance();
+        return $CI->config->res_url($uri);
+    }
+}
+
+
+/**
 * sub_domain
 * Returns sub domain name from URL string.
  *
@@ -67,18 +100,19 @@ if ( ! function_exists('sub_domain'))
 }
 
 /**
-* sub_url
-* Form uri with subdomain
+* lang
+* Shortcut to curr language
  *
  * @access  public
  * @return  string
  */
-if ( ! function_exists('sub_url'))
+if ( ! function_exists('lang'))
 {
-    function sub_url($uri = '')
+    function lang()
     {
         $CI =& get_instance();
-        return $CI->config->sub_url($uri);
+        return $CI->config->lang();
     }
 }
+
 

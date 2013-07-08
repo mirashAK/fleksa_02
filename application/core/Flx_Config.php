@@ -71,13 +71,16 @@ class Flx_Config extends CI_Config {
     * Returns base_url [. uri_string]
     *
     * @access public
-    * @param string $uri
+    * @param   string  the URI string
+    * @param   bool  include lang
     * @return string
     */
-  function base_url($uri = '')
+  function base_url($uri = '', $include_lang = true)
   {
-    if ($this->config['lang_url_include'] == true) $uri = $this->config['language'].'/'.$uri;
-      return parent::base_url($uri);
+    if ($this->config['lang_url_include'] == true && $include_lang == true)
+      $uri = $this->config['language'].'/'.ltrim($this->_uri_string($uri), '/');
+
+    return rtrim($this->slash_item('base_url').ltrim($this->_uri_string($uri), '/'), '/');
   }
     
     
@@ -91,8 +94,22 @@ class Flx_Config extends CI_Config {
     */
   function site_url($uri = '')
   {
-    if ($this->config['lang_url_include'] == true) $uri = $this->config['language'].'/'.$uri;
+    if ($this->config['lang_url_include'] == true)
+      $uri = $this->config['language'].'/'.$uri;
+      
     return parent::site_url($uri);
+  }
+  
+  /**
+    * Shortcut to curr language
+    * Returns lang
+    *
+    * @access  public
+    * @return  string
+    */
+  function lang()
+  {
+    return $this->config['language'];
   }
     
   /**
@@ -107,22 +124,38 @@ class Flx_Config extends CI_Config {
     return $this->config['sub_domain'];
   }
   
-   /**
+  /**
   * sub_url
-  * Returns sub_domain name from URL string
+  * Create url with subdomain and/or current lang
   *
   * @access  public
+  * @param   string  the URI string
+  * @param   bool  include lang
   * @return  string
   */
-  function sub_url($uri = '')
+  function sub_url($uri = '', $include_lang = true)
   {
     if ($this->config['sub_domain'] !== false)
     {
       $base_url = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off' ? 'https' : 'http';
       $base_url .= '://'.$this->config['sub_domain'].$this->config['cookie_domain'].'/';
-      return $base_url.($this->config['lang_url_include']?$this->config['language'].'/':'').ltrim($this->_uri_string($uri), '/');
+      $base_url .= rtrim((($this->config['lang_url_include'] == true && $include_lang == true )?$this->config['language'].'/':'').ltrim($this->_uri_string($uri), '/'), '/');
+      return rtrim($base_url, '/');
     }
-    else return $this->base_url($uri);
+    else return rtrim($this->slash_item('base_url').ltrim($this->_uri_string($uri), '/'), '/');
+  } 
+  
+  /**
+  * res_url
+  * Create url without subdomain and lang for resources
+  *
+  * @access  public
+  * @param   string  the URI string
+  * @return  string
+  */
+  function res_url($uri = '')
+  {
+    return rtrim($this->slash_item('base_url').trim($this->_uri_string($uri), '/'), '/');
   } 
 
 }
