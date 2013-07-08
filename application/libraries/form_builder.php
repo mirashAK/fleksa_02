@@ -70,6 +70,11 @@ class Form_Builder
     $this->form_data['form']['action'] = $form_action;
   }
   
+  function add_error($field_name, $value)
+  {
+    $this->errors[$field_name][] = $value;
+  }
+  
   public function get_data_array($provided_data = null)
   {
     $xhr_request = array();
@@ -202,7 +207,7 @@ class Form_Builder
     return false;
   }
   
-  public function draw_form($view_name, &$view_data = null)
+  public function draw_form($view_name = null, &$view_data = null)
   {
     if (!empty($view_data)) $this->form_data = array_merge($this->form_data, $view_data);
     //echo(draw_partial_input($this->form_data, 'u_soname'));
@@ -215,10 +220,14 @@ class Form_Builder
         $this->xhr_answer->valid = false;
         $this->xhr_answer->errors = $this->errors;
       }
-      $this->xhr_answer->view = $this->CI->parser->parse($view_name, $this->form_data, true);
+      if (!empty($view_name)) $this->xhr_answer->view = $this->CI->parser->parse($view_name, $this->form_data, true);
       $this->xhr_answer->send();
     }
-    else return $this->CI->parser->parse($view_name, $this->form_data, true);
+    else
+    {
+      if (!empty($view_name)) return $this->CI->parser->parse($view_name, $this->form_data, true);
+      else return '';
+    }
   }
 
 }
