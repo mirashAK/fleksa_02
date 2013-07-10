@@ -111,6 +111,7 @@ class User
       foreach ($result as $key=>$value)
       {
         if ($key!=='last_ip') $this->$key = $value;
+        if ($key=='user_id') $this->$key = (int)$value;
       }
       
     $this->user_token = $this->user_session->sess_token;

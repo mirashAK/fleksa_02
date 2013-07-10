@@ -142,7 +142,7 @@ class Flx_Config extends CI_Config {
       $base_url .= rtrim((($this->config['lang_url_include'] == true && $include_lang == true )?$this->config['language'].'/':'').ltrim($this->_uri_string($uri), '/'), '/');
       return rtrim($base_url, '/');
     }
-    else return rtrim($this->slash_item('base_url').ltrim($this->_uri_string($uri), '/'), '/');
+    else return rtrim($this->slash_item('base_url').(($this->config['lang_url_include'] == true && $include_lang == true )?$this->config['language'].'/':'').ltrim($this->_uri_string($uri), '/'), '/');
   } 
   
   /**

@@ -10,7 +10,7 @@ class Flx_Controller extends CI_Controller {
     $this->set_language();
     $this->view_data['base_url'] = base_url();
     $this->view_data['sub_url'] = sub_url();
-    $this->view_data['uri_lang'] = $this->config->item('language');
+    $this->view_data['res_url'] = res_url();
     $this->view_data['scripts'] = array();
     require_once APPPATH.'libraries/Form_Builder.php';
   }
@@ -31,20 +31,30 @@ class Flx_Controller extends CI_Controller {
   {
     $this->config->load('languages');
     
-    if (empty($this->uri->lang) && $this->config->item('lang_check_browser'))
+    // If Url lang empty try to check browser lang
+    if (empty($this->uri->lang) || !in_array($this->uri->lang, $this->config->item('lang_supported')))
     {
-      $lang =  get_browser_lang();
-      if (in_array($lang, $this->config->item('lang_supported')))
+      if ($this->config->item('lang_check_browser') == true)
       {
-        if ($lang !== $this->config->item('language'))
-          if ($this->config->item('lang_redirect') == true) redirect(sub_url($lang.'/'.uri_string()), 'refresh');
-          else $this->config->set_item('language', $lang);
-          //$this->uri->lang = $lang;
+        $lang =  get_browser_lang();
+        if (in_array($lang, $this->config->item('lang_supported')) && $lang !== $this->config->item('language'))
+          $this->config->set_item('language', $lang);
       }
     }
+    // Else get url language
     elseif (in_array($this->uri->lang, $this->config->item('lang_supported')))
     {
       $this->config->set_item('language', $this->uri->lang);
+    }
+    
+    // If we need to redirect, do it
+    if ((empty($this->uri->lang) || !in_array($this->uri->lang, $this->config->item('lang_supported'))) && $this->config->item('lang_redirect') == true)
+    {
+      if ($this->config->item('lang_url_include') == true)
+      {
+        redirect(sub_url(uri_string()), 'refresh');
+      }
+      else redirect(sub_url($lang.'/'.uri_string()), 'refresh');
     }
   }
   

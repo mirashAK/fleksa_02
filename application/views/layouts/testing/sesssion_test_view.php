@@ -38,14 +38,14 @@
         {reg_form}</p>
         
         <p>Logout:
-        <a href="{sub_url}testing/session_test/logout">Logout</a></p>
+        <a href="{sub_url}/testing/session_test/logout">Logout</a></p>
         
 	</div>
 
 	<p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds</p>
 </div>
 
-<script type="text/javascript" src="{base_url}assets/js/jquery.min.js"></script>
+<script type="text/javascript" src="{res_url}/assets/js/jquery.min.js"></script>
 <script type="text/javascript">
   jQuery(document).ready(function()
   {
