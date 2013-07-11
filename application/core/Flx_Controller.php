@@ -60,7 +60,8 @@ class Flx_Controller extends CI_Controller {
   
   protected function add_script($script_name)
   {
-    if (!empty($this->view_data['res_js'])) $script_name = $this->view_data['res_js'].$script_name;
+    if (!empty($this->view_data['res_js'])) $script_name = $this->view_data['res_js'].'/'.trim($script_name, '/');
+    elseif (!empty($this->view_data['res_url'])) $script_name = $this->view_data['res_url'].'/'.trim($script_name, '/');
     
     if (!array_key_exists('scripts', $this->view_data)) $this->view_data['scripts'] = array();
       
@@ -75,7 +76,7 @@ class Default_Controller extends Flx_Controller
     {
       parent::__construct();
       $this->load->database('default');
-      $this->load->library('user');
+      $this->load->library('user_lib', array(), 'user');
     }
 }
 
@@ -85,7 +86,9 @@ class Test_Controller extends Flx_Controller
     {
       parent::__construct();
       $this->load->database('test');
-      $this->load->library('user');
+      $this->load->library('user_lib', array(), 'user');
+      $this->add_script('assets/js/jquery.min.js');
+      $this->add_script('assets/js/dev.js');
      }
 }
 
@@ -97,8 +100,6 @@ class Admin_Controller extends Default_Controller
       
       $this->view_data['site_title'] = 'Fleksa';
       $this->view_data['site_metadata'] = '';
-      $this->view_data['site_header'] = '';
-      $this->view_data['site_footer'] = '';
       $this->view_data['site_body'] = '';
     }
 }

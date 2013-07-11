@@ -45,7 +45,9 @@
         <code>{test_email_missing}</code>
 
         <p>Test Extended parser</p>
-        <code>{test_arr:social_description}</code><br/>
+        <code>{test_arr:social_description}<br/>
+        {test_arr:reg_description}<br/>
+        {test_arr:reg_title}</code><br/>
         
         <p>If you are exploring CodeIgniter for the very first time, you should start by reading the <a href="user_guide/">User Guide</a>.</p>
     </div>

@@ -36,6 +36,7 @@
         
         <p>Reg form:
         {reg_form}</p>
+        <p><input id="xhr_reg_button" type="button" value="XHR Reg test" /></p>
         
         <p>Logout:
         <a href="{sub_url}/testing/session_test/logout">Logout</a></p>
@@ -45,36 +46,11 @@
 	<p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds</p>
 </div>
 
-<script type="text/javascript" src="{res_url}/assets/js/jquery.min.js"></script>
-<script type="text/javascript">
-  jQuery(document).ready(function()
-  {
-    jQuery("#xhr_auth_button").on("click", function(event)
-    {
-      jQuery.ajax(
-      {
-        url: jQuery("#auth_form").attr('action'),
-        type: 'post',
-        dataType: 'json',
-        data: {"auth_form" : jQuery("#auth_form").serialize()},
-        success: function(answer)
-        {
-          if (answer.valid == true)
-          {
-            if (answer.redirect !== false) window.location = answer.redirect;
-          }
-          else
-          {
-            for ( name in answer.errors )  { alert( name +': '+ answer.errors[name] ); };
-          }
-        },
-        error: function(e){
-          console.log("error"+e);
-        }
-      });
-    });
-  });
-</script>
-
+  <?php //Custom scripts, added by add_script() function. Do not touch. ?>
+  {scripts}
+    {script}
+  {/scripts}
+  <?php //Custom scripts ?>
+  
 </body>
 </html>

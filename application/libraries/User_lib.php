@@ -1,6 +1,6 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class User  
+class User_lib
 {
   public $user_token = null;
   public $user_ip = null;

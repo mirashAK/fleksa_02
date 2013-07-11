@@ -7,8 +7,8 @@ class Session_Test extends Test_Controller {
       $this->load->library('session');
       $this->load->model('users_mdl');
       
-      $auth_form = Form_Builder::factory('auth_form', '/testing/session_test/auth');
-      $reg_form = Form_Builder::factory('reg_form', '/testing/session_test/add_user');
+      $auth_form = Form_Builder::factory('auth_form', sub_url('/testing/session_test/auth'));
+      $reg_form = Form_Builder::factory('reg_form', sub_url('/testing/session_test/add_user'));
       
       $this->view_data['auth_form'] = $auth_form->draw_form('layouts/testing/forms/auth_form', $this->view_data);
       $this->view_data['reg_form'] = $reg_form->draw_form('layouts/testing/forms/reg_form', $this->view_data);
@@ -41,10 +41,10 @@ class Session_Test extends Test_Controller {
       }
       if ($this->input->is_ajax_request())
       {
-        $auth_form->xhr_answer->redirect = sub_url($this->config->item('language').'/testing/session_test');
+        $auth_form->xhr_answer->redirect = sub_url('testing/session_test');
         $auth_form->draw_form('layouts/testing/forms/auth_form', $this->view_data);
       }
-      else redirect(sub_url($this->config->item('language').'/testing/session_test'), 'refresh');
+      else redirect(sub_url('testing/session_test'), 'refresh');
     }
     
     public function add_user()
@@ -53,9 +53,9 @@ class Session_Test extends Test_Controller {
       
       if ($reg_form->validate() == true)
       {
-        $this->user_session->get_params = $this->config->item('language').'/testing/session_test/reg_user'.$this->user->add_user ($reg_form->user_email, $reg_form->user_pass);
+        $this->user_session->get_params = sub_url('/testing/session_test/reg_user'.$this->user->add_user ($reg_form->user_email, $reg_form->user_pass));
       }
-      redirect(sub_url($this->config->item('language').'/testing/session_test'), 'refresh');
+      redirect(sub_url('testing/session_test'), 'refresh');
     }
     
     public function reg_user()
@@ -67,13 +67,12 @@ class Session_Test extends Test_Controller {
         $this->user_session->registered = $this->user->reg_user();
       }
       if ($this->user_session->registered == true)
-        redirect(sub_url($this->config->item('language').'/testing/session_test'), 'refresh');
+        redirect(sub_url('testing/session_test'), 'refresh');
     }
     
     public function logout()
     {
-      $this->load->library('user');
-      if ($this->user->logout() == true) redirect(sub_url($this->config->item('language').'/testing/session_test'), 'refresh');
+      if ($this->user->logout() == true) redirect(sub_url('testing/session_test'), 'refresh');
     }
 }
 
