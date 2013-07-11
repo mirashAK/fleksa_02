@@ -147,8 +147,7 @@ class Form_Builder
   {
     $errors_arr = array();
     $pass = '';
-    
-    if ($this->check_request() == true)
+    if ($this->check_request() === true)
     {
       foreach($this->form_data['type'] as $key=>$value)
         switch ($value)
@@ -168,14 +167,18 @@ class Form_Builder
                 break;
               }
               $this->form_data['value'][$key] = strtolower ($this->form_data['value'][$key]);
-              if (!preg_match("/^[a-z]+$/", $this->form_data['value'][$key])) $errors_arr[$this->form_data['caption'][$key]][] = 'forbidden chars';
+              if (!preg_match("/^[a-z0-9]+$/", $this->form_data['value'][$key])) $errors_arr[$this->form_data['caption'][$key]][] = 'forbidden chars';
           break;
           case 'pass':
               $pass = $this->form_data['value'][$key];
               if (strlen($this->form_data['value'][$key]) == 0) $errors_arr[$this->form_data['caption'][$key]][] = 'empty';
           break;
           case 're_pass':
-              if (strlen($this->form_data['value'][$key]) == 0) $errors_arr[$this->form_data['caption'][$key]][] = 'empty';
+              if (strlen($this->form_data['value'][$key]) == 0)
+              {
+                $errors_arr[$this->form_data['caption'][$key]][] = 'empty';
+                break;
+              }
               if ($this->form_data['value'][$key] !== $pass) $errors_arr[$this->form_data['caption'][$key]][] = 'password mismatch';
           break;
         }
@@ -186,7 +189,11 @@ class Form_Builder
         return false;
       }
     }
-    else return false;
+    else
+    {
+      $this->errors['Validation'] = 'Wrong request';
+      return false;
+    }
   }
   
   protected function types_transform_to_HTML()
@@ -268,7 +275,7 @@ class Flx_Reg_Form extends Form_Builder
     parent::__construct();
     $this->form_data = array ('form'=>array('name'=>$form_name, 'action'=>$form_action));
     $provided_data = array (
-      'caption'=>array('user_email'=>'email', 'user_pass'=>'passwd', 'user_re_pass'=>'password'),
+      'caption'=>array('user_email'=>'email', 'user_pass'=>'passwd', 'user_re_pass'=>'re_passwd'),
       'type'    =>array('user_email'=>'email', 'user_pass'=>'pass', 'user_re_pass'=>'re_pass'),
       'value'   =>array('user_email'=>'', 'user_pass'=>'', 'user_re_pass'=>''),
     );

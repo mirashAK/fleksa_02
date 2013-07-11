@@ -53,8 +53,7 @@ class Flx_User extends Flx_Model
     if (!empty($first_result) && $first_result->num_rows() == 1)
     {
       $first_result = $first_result->row_array();
-      if ($first_result['get_params'] !== '0' && $first_result['get_params'] !== '-1') return $first_result['get_params'];
-      else return false;
+      return $first_result['get_params'];
     }
     else return false;
   }

@@ -14,6 +14,7 @@
     #body{margin: 0 15px 0 15px;}
     p.footer{text-align: right;font-size: 11px;border-top: 1px solid #D0D0D0;line-height: 32px;padding: 0 10px 0 10px;margin: 20px 0 0 0;}
     #container{margin: 10px;border: 1px solid #D0D0D0;-webkit-box-shadow: 0 0 8px #D0D0D0;}
+    .error {background-color: red;}
     </style>
 </head>
 <body>
@@ -30,12 +31,16 @@
                     session_dump: {session_dump}<br/>
         </code>
 	
-		<p>Auth form:
-        {auth_form}</p>
+		<p>Auth form:</p>
+          <div class="auth_form_reload_container">
+          {auth_form}
+          </div>
         <p><input id="xhr_auth_button" type="button" value="XHR Auth test" /></p>
         
-        <p>Reg form:
-        {reg_form}</p>
+        <p>Reg form:</p>
+          <div id="reload_container">
+          {reg_form}
+          </div>
         <p><input id="xhr_reg_button" type="button" value="XHR Reg test" /></p>
         
         <p>Logout:

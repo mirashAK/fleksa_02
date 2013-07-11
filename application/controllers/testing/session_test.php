@@ -51,11 +51,15 @@ class Session_Test extends Test_Controller {
     {
       $reg_form = Form_Builder::factory('reg_form');
       
-      if ($reg_form->validate() == true)
+      if ($reg_form->validate() === true)
       {
-        $this->user_session->get_params = sub_url('/testing/session_test/reg_user'.$this->user->add_user ($reg_form->user_email, $reg_form->user_pass));
+        if ($this->input->is_ajax_request())
+        {
+          $reg_form->xhr_answer->view = '<a href="'.sub_url('/testing/session_test/reg_user'.$this->user->add_user ($reg_form->user_email, $reg_form->user_pass)).'">Reg</a>';
+          $reg_form->draw_form();
+        }
       }
-      redirect(sub_url('testing/session_test'), 'refresh');
+      else $reg_form->draw_form('layouts/testing/forms/auth_form', $this->view_data);
     }
     
     public function reg_user()
@@ -63,7 +67,6 @@ class Session_Test extends Test_Controller {
       $token = $this->input->get('token');
       if (!empty($token))
       {
-        $this->load->library('user');
         $this->user_session->registered = $this->user->reg_user();
       }
       if ($this->user_session->registered == true)
