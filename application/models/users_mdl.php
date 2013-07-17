@@ -9,7 +9,14 @@ class Users_mdl extends Flx_Model
   
   public function get_user(&$user)
   {
-    return $this->row_object($user, 'public_users', 'u_id=1');
+    $result = $this->row_object($user, 'public_users', 'u_f_user_id='.$user->user_id);
+    if ($result == false) $result = $this->get_table_signature($user, 'public_users');
+    return $result;
+  }
+  
+  public function get_user_signature(&$user)
+  {
+    return $this->get_table_signature($user, 'public_users');
   }
   
 }

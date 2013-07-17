@@ -12,7 +12,8 @@ class Flx_Controller extends CI_Controller {
     $this->view_data['sub_url'] = sub_url();
     $this->view_data['res_url'] = res_url();
     $this->view_data['scripts'] = array();
-    require_once APPPATH.'libraries/Form_Builder.php';
+    require_once APPPATH.'libraries/form_builder.php';
+    require_once APPPATH.'libraries/list_builder.php';
   }
   
   protected function parse_in($view_name)

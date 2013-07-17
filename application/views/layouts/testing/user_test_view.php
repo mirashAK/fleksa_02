@@ -24,6 +24,9 @@
     <div id="body">
         <p>Test user lists and forms</p>
 
+        
+        {user_form}
+        
     </div>
 
     <p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds</p>

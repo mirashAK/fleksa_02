@@ -40,7 +40,7 @@ class Flx_Model extends CI_Model
   {
     $sql = 'CALL get_table(?,?,?,?,?,?)';
 
-    //var_export(array($user->user_token, $user->user_ip, $table, $where, $order, $limit)); echo('<br/>');
+   // var_export(array($user->user_token, $user->user_ip, $table, $where, $order, $limit)); echo('<br/>');
     
     return $this->db->query($sql, array($user->user_token, $user->user_ip, $table, $where, $order, $limit));
     
@@ -67,16 +67,15 @@ class Flx_Model extends CI_Model
       $final_result = array();
       // Получаем результат запроса стандартным методом CI
       $first_result = $first_result->row_array();
-      
+
       if (empty($first_result['columns_defs'])) return false;
-      
       $first_result = json_decode($first_result['columns_defs'] , true);
-      
       // Формируем массив определений для полей результата (первый результат запроса)
       foreach ($first_result as $key=>$value)
       {
         $final_result['type'][$key] = $value['type'];
         $final_result['caption'][$key] = $value['caption'];
+        $final_result['r_only'][$key] = $value['r_only'];
       }
       
       // А теперь самое интересное - начинаем работать напрямую с методами mysqli
@@ -91,23 +90,45 @@ class Flx_Model extends CI_Model
           $second_result = mysqli_fetch_assoc($second_result);
           // Дозаполним результирующий массив значениями
           foreach ($second_result as $key=>$value)
-            {
-              $final_result['value'][$key] = $value;
-            }
+          {
+            $final_result['value'][$key] = $value;
+          }
         }
-        else 
+        else $final_result['value'] = array(); 
+
+        // Поищем справочники (dicts) прицепленные к полям таблицы
+        while($this->db->conn_id->next_result())
         {
-          $this->_clear_results();
-          return false;
+          $dicts_result = $this->db->conn_id->store_result();
+          if (is_object($dicts_result) && mysqli_num_rows($dicts_result) > 0)
+          {
+            $dicts_result = mysqli_fetch_assoc($dicts_result);
+             // Если нашли указание поля и связанной таблицы(справочника)
+            if (!empty($dicts_result['dict_field']) && !empty($dicts_result['dict_table']))
+            {
+              $final_result['dict'][$dicts_result['dict_field']]['table'] = $dicts_result['dict_table'];
+              $final_result['dict'][$dicts_result['dict_field']]['value'] = array();
+              // Сразу прочитаем следующий результат
+              // ибо он должен быть значениями справочника
+              $this->db->conn_id->next_result();
+              $dicts_values = $this->db->conn_id->store_result();
+
+              if (is_object($dicts_values) && mysqli_num_rows($dicts_values) > 0)
+                while ($dicts_value = mysqli_fetch_assoc($dicts_values))
+                  $final_result['dict'][$dicts_result['dict_field']]['value'][$dicts_value['dict_id']] = $dicts_value['dict_value'];
+                  
+              unset($dicts_values); unset($dicts_value);
+            }
+          }
+          unset($dicts_result);
         }
-        
-        $this->_clear_results();
-        
-        return $final_result;
       }
-      else return false;
+      
+      $this->_clear_results();
+      return $final_result;
     }
-    else return false;
+    $this->_clear_results();
+    return false;
   }
   
   protected function full_array (&$user, $table, $where = '', $order = '', $limit = '')
@@ -133,6 +154,7 @@ class Flx_Model extends CI_Model
       {
         $final_result['type'][$key] = $value['type'];
         $final_result['caption'][$key] = $value['caption'];
+        $final_result['r_only'][$key] = $value['r_only'];
       }
       
       // А теперь самое интересное - начинаем работать напрямую с методами mysqli
@@ -156,11 +178,6 @@ class Flx_Model extends CI_Model
           $final_result['values'][$array_counter-1]['position'] = CONST_POS_LAST;
           unset($row_result);
         }
-        else 
-        {
-          $this->_clear_results();
-          return false;
-        }
         
         // Получим третий результат - количество строк в таблице
         if ($this->db->conn_id->next_result())
@@ -175,13 +192,39 @@ class Flx_Model extends CI_Model
           }
         }
         
-        $this->_clear_results();
-        
-        return $final_result;
+        // Поищем справочники (dicts) прицепленные к полям таблицы
+        while($this->db->conn_id->next_result())
+        {
+          $dicts_result = $this->db->conn_id->store_result();
+          if (is_object($dicts_result) && mysqli_num_rows($dicts_result) > 0)
+          {
+            $dicts_result = mysqli_fetch_assoc($dicts_result);
+             // Если нашли указание поля и связанной таблицы(справочника)
+            if (!empty($dicts_result['dict_field']) && !empty($dicts_result['dict_table']))
+            {
+              $final_result['dict'][$dicts_result['dict_field']]['table'] = $dicts_result['dict_table'];
+              $final_result['dict'][$dicts_result['dict_field']]['value'] = array();
+              // Сразу прочитаем следующий результат
+              // ибо он должен быть значениями справочника
+              $this->db->conn_id->next_result();
+              $dicts_values = $this->db->conn_id->store_result();
+
+              if (is_object($dicts_values) && mysqli_num_rows($dicts_values) > 0)
+                while ($dicts_value = mysqli_fetch_assoc($dicts_values))
+                  $final_result['dict'][$dicts_result['dict_field']]['value'][$dicts_value['dict_id']] = $dicts_value['dict_value'];
+                  
+              unset($dicts_values); unset($dicts_value);
+            }
+          }
+          unset($dicts_result);
+        }
       }
-      else return false;
+      
+      $this->_clear_results();
+      return $final_result;
     }
-    else return false;
+    $this->_clear_results();
+    return false;
   }
   
   protected function row_object ($user, $table, $where = '')
@@ -195,21 +238,21 @@ class Flx_Model extends CI_Model
       $final_result = array();
       // Получаем результат запроса стандартным методом CI
       $first_result = $first_result->row_array();
-      
+
       if (empty($first_result['columns_defs'])) return false;
-      
       $first_result = json_decode($first_result['columns_defs'] , true);
-      
       // Формируем массив определений для полей результата (первый результат запроса)
       foreach ($first_result as $key=>$value)
       {
         $final_result['type'][$key] = $value['type'];
         $final_result['caption'][$key] = $value['caption'];
+        $final_result['r_only'][$key] = $value['r_only'];
       }
       
       // Преобразуем в объект
       $final_result['type'] = (object)$final_result['type'];
       $final_result['caption'] = (object)$final_result['caption'];
+      $final_result['r_only'] = (object)$final_result['r_only'];
       
       // А теперь самое интересное - начинаем работать напрямую с методами mysqli
       // Сначала получим второй результат запроса, в качестве объекта типа mysqli - $this->db->conn_id
@@ -223,25 +266,49 @@ class Flx_Model extends CI_Model
           $second_result = mysqli_fetch_assoc($second_result);
           // Дозаполним результирующий массив значениями
           foreach ($second_result as $key=>$value)
-            {
-              $final_result['value'][$key] = $value;
-            }
-          // Преобразуем в объект
+          {
+            $final_result['value'][$key] = $value;
+          }
           $final_result['value'] = (object)$final_result['value'];
         }
-        else 
+        else $final_result['value'] = false; 
+
+        // Поищем справочники (dicts) прицепленные к полям таблицы
+        while($this->db->conn_id->next_result())
         {
-          $this->_clear_results();
-          return false;
+          $dicts_result = $this->db->conn_id->store_result();
+          if (is_object($dicts_result) && mysqli_num_rows($dicts_result) > 0)
+          {
+            $dicts_result = mysqli_fetch_assoc($dicts_result);
+             // Если нашли указание поля и связанной таблицы(справочника)
+            if (!empty($dicts_result['dict_field']) && !empty($dicts_result['dict_table']))
+            {
+              $final_result['dict'][$dicts_result['dict_field']]['table'] = $dicts_result['dict_table'];
+              $final_result['dict'][$dicts_result['dict_field']]['value'] = array();
+              // Сразу прочитаем следующий результат
+              // ибо он должен быть значениями справочника
+              $this->db->conn_id->next_result();
+              $dicts_values = $this->db->conn_id->store_result();
+
+              if (is_object($dicts_values) && mysqli_num_rows($dicts_values) > 0)
+                while ($dicts_value = mysqli_fetch_assoc($dicts_values))
+                  $final_result['dict'][$dicts_result['dict_field']]['value'][$dicts_value['dict_id']] = $dicts_value['dict_value'];
+                  
+              //$final_result['dict'][$dicts_result['dict_field']]['value'] = (object)$final_result['dict'][$dicts_result['dict_field']]['value'];   
+              $final_result['dict'][$dicts_result['dict_field']] = (object)$final_result['dict'][$dicts_result['dict_field']];
+              unset($dicts_values); unset($dicts_value);
+            }
+          }
+          unset($dicts_result);
         }
-        
-        $this->_clear_results();
-        
-        return (object)$final_result;
       }
-      else return false;
+      
+      $this->_clear_results();
+      $final_result['dict'] = (object)$final_result['dict'];
+      return (object)$final_result;
     }
-    else return false;
+    $this->_clear_results();
+    return false;
   }
   
   protected function full_objects (&$user, $table, $where = '', $order = '', $limit = '')
@@ -267,10 +334,12 @@ class Flx_Model extends CI_Model
       {
         $final_result['type'][$key] = $value['type'];
         $final_result['caption'][$key] = $value['caption'];
+        $final_result['r_only'][$key] = $value['r_only'];
       }
       // Преобразуем в объект
       $final_result['type'] = (object)$final_result['type'];
       $final_result['caption'] = (object)$final_result['caption'];
+      $final_result['r_only'] = (object)$final_result['r_only'];
       
       // А теперь самое интересное - начинаем работать напрямую с методами mysqli
       // Сначала получим второй результат запроса, в качестве объекта типа mysqli - $this->db->conn_id
@@ -306,20 +375,43 @@ class Flx_Model extends CI_Model
               $final_result['total_count'] = $third_result['total_count'];
             }
           }
+          
+          // Поищем справочники (dicts) прицепленные к полям таблицы
+          while($this->db->conn_id->next_result())
+          {
+            $dicts_result = $this->db->conn_id->store_result();
+            if (is_object($dicts_result) && mysqli_num_rows($dicts_result) > 0)
+            {
+              $dicts_result = mysqli_fetch_assoc($dicts_result);
+              // Если нашли указание поля и связанной таблицы(справочника)
+              if (!empty($dicts_result['dict_field']) && !empty($dicts_result['dict_table']))
+              {
+                $final_result['dict'][$dicts_result['dict_field']]['table'] = $dicts_result['dict_table'];
+                $final_result['dict'][$dicts_result['dict_field']]['value'] = array();
+                // Сразу прочитаем следующий результат
+                // ибо он должен быть значениями справочника
+                $this->db->conn_id->next_result();
+                $dicts_values = $this->db->conn_id->store_result();
+
+                if (is_object($dicts_values) && mysqli_num_rows($dicts_values) > 0)
+                  while ($dicts_value = mysqli_fetch_assoc($dicts_values))
+                    $final_result['dict'][$dicts_result['dict_field']]['value'][$dicts_value['dict_id']] = $dicts_value['dict_value'];
+                    
+                //$final_result['dict'][$dicts_result['dict_field']]['value'] = (object)$final_result['dict'][$dicts_result['dict_field']]['value'];   
+                $final_result['dict'][$dicts_result['dict_field']] = (object)$final_result['dict'][$dicts_result['dict_field']];
+                unset($dicts_values); unset($dicts_value);
+              }
+            }
+            unset($dicts_result);
+          }
         }
-        else 
-        {
-          $this->_clear_results();
-          return false;
-        }
-        
-        $this->_clear_results();
-        
-        return (object)$final_result;
       }
-      else return false;
+        $this->_clear_results();
+        $final_result['dict'] = (object)$final_result['dict'];
+        return (object)$final_result;
     }
-    else return false;
+    $this->_clear_results();
+    return false;
   }
   
   protected function _clear_results()
@@ -334,4 +426,84 @@ class Flx_Model extends CI_Model
     }
   }
   
+  protected function get_table_signature(&$user, $table)
+  {
+    $sql = 'CALL get_signature(?,?,?)';
+    
+    $first_result = $this->db->query($sql, array($user->user_token, $user->user_ip, $table));
+    
+    if (!empty($first_result) && $first_result->num_rows() == 1)
+    {
+      $final_result = array();
+     //$final_result['r_only'] = true;
+      // Получаем результат запроса стандартным методом CI
+      $first_result = $first_result->row_array();
+      
+      if (empty($first_result['columns_defs'])) return false;
+      
+      $first_result = json_decode($first_result['columns_defs'] , true);
+      
+      // Формируем массив определений для полей результата (первый результат запроса)
+      foreach ($first_result as $key=>$value)
+      {
+        $final_result['type'][$key] = $value['type'];
+        $final_result['caption'][$key] = $value['caption'];
+        $final_result['r_only'][$key] = $value['r_only'];
+        $final_result['value'][$key] = '';
+        //if ($value['r_only'] == false) $final_result['r_only'] = false;
+      }
+      
+      // Поищем справочники (dicts) прицепленные к полям таблицы
+      while($this->db->conn_id->next_result())
+      {
+        $dicts_result = $this->db->conn_id->store_result();
+        if (is_object($dicts_result) && mysqli_num_rows($dicts_result) > 0)
+        {
+          $dicts_result = mysqli_fetch_assoc($dicts_result);
+            // Если нашли указание поля и связанной таблицы(справочника)
+          if (!empty($dicts_result['dict_field']) && !empty($dicts_result['dict_table']))
+          {
+            $final_result['dict'][$dicts_result['dict_field']]['table'] = $dicts_result['dict_table'];
+            $final_result['dict'][$dicts_result['dict_field']]['value'] = array();
+            // Сразу прочитаем следующий результат
+            // ибо он должен быть значениями справочника
+            $this->db->conn_id->next_result();
+            $dicts_values = $this->db->conn_id->store_result();
+
+            if (is_object($dicts_values) && mysqli_num_rows($dicts_values) > 0)
+              while ($dicts_value = mysqli_fetch_assoc($dicts_values))
+                $final_result['dict'][$dicts_result['dict_field']]['value'][$dicts_value['dict_id']] = $dicts_value['dict_value'];
+                
+            unset($dicts_values); unset($dicts_value);
+          }
+        }
+        unset($dicts_result);
+      }
+      
+      $this->_clear_results();
+      $final_result['is_new'] = true;
+      return $final_result;
+    }
+     
+    $this->_clear_results();
+    return false;
+  }
+  
+  public function save_table (&$user, $table, &$form, $where = '')
+  {
+    $sql = 'CALL set_table(?,?,?,?,?)';
+    
+    $serialized_values = $form->get_values();
+    
+    if (!empty($serialized_values))
+    {
+      if ($form->is_new) $first_result = $this->db->query($sql, array($user->user_token, $user->user_ip, $table, $serialized_values, ''));
+      else $first_result = $this->db->query($sql, array($user->user_token, $user->user_ip, $table, $serialized_values, $where));
+      //if (!empty($first_result) && $first_result->num_rows() == 1)
+      $this->_clear_results();
+      return true;
+    }
+    $this->_clear_results();
+    return false;
+  }
 } 

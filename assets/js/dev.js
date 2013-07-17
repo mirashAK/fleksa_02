@@ -26,6 +26,7 @@ jQuery(document).ready(function()
       reload_container = check_result(form.parents(reload_container).first()) || false;
       
       var before_send = form_data.before_send || function(){};
+      var after_send = form_data.after_send || function(){};
 
       // Ajax sending
       jQuery.ajax (

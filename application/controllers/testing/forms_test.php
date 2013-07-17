@@ -5,30 +5,50 @@ class Forms_Test extends Test_Controller
  
  public function index()
  {
-    $form = Form_Builder::factory('auth_form', '/testing/forms_test');
-    $reg_form = Form_Builder::factory('reg_form', '/testing/forms_test');
-    
     $this->load->model('users_mdl');
+
+    $data = $this->users_mdl->get_user_signature($this->user);
+
     
-    //$form->form_data = $this->users_mdl->get_user($this->user); !!!
-    
-    $form->validate();
-    $reg_form->validate();
-    
-    if ($this->input->is_ajax_request()) $form->xhr_answer->redirect = sub_url($this->config->item('language').'/testing/forms_test');
-    
-    $this->view_data['auth_form'] = $form->draw_form('layouts/testing/forms/auth_form', $this->view_data);
-    $this->view_data['reg_form'] = $reg_form->draw_form('layouts/testing/forms/reg_form', $this->view_data);
-    
-      var_export($form->errors); echo('<br/>');
-      var_export($form->value); echo('<br/>');
-      
-      var_export($reg_form->errors); echo('<br/>');
-      var_export($reg_form->value); echo('<br/>');
-     
+    $this->view_data['type'] = var_export($data['type'], true);
+    $this->view_data['caption'] = var_export($data['caption'], true);
+    $this->view_data['r_only'] = var_export($data['r_only'], true);
+    $this->view_data['value'] = (array_key_exists('value', $data))?var_export($data['value'], true):'';
+ 
     $this->parse_out('layouts/testing/forms_test_view');
  }
  
+ 
+ 
+ 
+  public function user()
+  {
+    $this->load->model('users_mdl');
+    $form = Form_Builder::factory('public_user');
+    
+    $form->form_data = $this->users_mdl->get_user($this->user);
+    
+    //var_export($this->users_mdl->get_user($this->user));
+    
+    if ($form->validate() == true)
+    {
+      if ($form->is_new) $form->u_f_user_id = $this->user->user_id;
+      $this->users_mdl->save_table($this->user, 'public_users', $form, 'u_f_user_id='.$form->u_f_user_id);
+    }
+    else
+    {
+      var_export($form->errors);
+    }
+    
+    $this->view_data['user_form'] = $form->draw_form('layouts/testing/forms/user_form', $this->view_data);
+    
+    $this->parse_out('layouts/testing/user_test_view');
+  }
+  
+  
+  
+  
+  
   public function reset_pass()
   {
     if ($this->input->get('token') == false && $this->user_session->pass_reset_token == false)

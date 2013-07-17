@@ -23,34 +23,44 @@ class Form_Builder
 
   public static function factory ($flx_form_name = '', $flx_form_action = '')
   {
-    switch ($flx_form_name)
+    $CI =& get_instance();
+    $CI->config->load('flx_forms');
+    
+    $config_item_name = 'flx_'.strtolower($flx_form_name);
+    $config = $CI->config->item($config_item_name);
+    
+    if (empty($config))
     {
-      case 'auth_form':
-        return new Flx_Auth_Form($flx_form_name, $flx_form_action);
-        break;
-      case 'reg_form':
-        return new Flx_Reg_Form($flx_form_name, $flx_form_action);
-        break;
-      case 'change_pass_form_email':
-        return new Flx_Ch_Pass_Form_Email($flx_form_name, $flx_form_action);
-        break;
-      case 'change_pass_form':
-        return new Flx_Ch_Pass_Form($flx_form_name, $flx_form_action);
-        break;
-      default:
-        return new Flx_Edit_Form($flx_form_name, $flx_form_action);
+      $form = new Flx_DB_Form ();
+      $form->form_data = array('form'=>array('name'=>$flx_form_name, 'action'=>$flx_form_action));
     }
+    else
+    {
+      $form = new Flx_Custom_Form ();
+      $form->form_data = array('form'=>array('name'=>$flx_form_name, 'action'=>$flx_form_action));
+      $form->get_data_array($config);
+    }
+    return $form;
   }
   
   function __set($name, $value)
   {
-    if ($name == 'form_data' && !empty($value))
-      if (is_array($value)) $this->get_data_array($value);
-      elseif (is_object($value)) $this->get_data_object($value);
-      
-    if ($name == 'name' && !empty($value)) $this->name($value);
-    if ($name == 'action' && !empty($value)) $this->action($value);
-      
+  
+    switch ($name)
+    {
+      case 'form_data':
+        if (is_array($value)) $this->get_data_array($value);
+        elseif (is_object($value)) $this->get_data_object($value);
+        break;
+      case 'name':
+        $this->name($value);
+        break;
+      case 'action':
+        $this->action($value);
+        break;
+      default:
+        if (array_key_exists($name, $this->form_data['value'])) $this->form_data['value'][$name] = $value;
+    }
     return true;
   }
   
@@ -104,7 +114,11 @@ class Form_Builder
         $this->form_data['caption'][$field] = $provided_data['caption'][$field];
         $this->form_data['type'][$field] = $provided_data['type'][$field];
         $this->form_data['name'][$field] = $this->form_data['form']['name']."_$field";
+        if (array_key_exists('r_only', $provided_data))
+          $this->form_data['r_only'][$field] = $provided_data['r_only'][$field];
       }
+      if(!empty($provided_data['is_new'])) $this->form_data['is_new'] = $provided_data['is_new'];
+      else $this->form_data['is_new'] = false;
     }
     //var_export($this->form_data['value']);
   }
@@ -138,7 +152,10 @@ class Form_Builder
         $this->form_data['caption'][$field] = $provided_data->caption->$field;
         $this->form_data['type'][$field] = $provided_data->type->$field;
         $this->form_data['name'][$field] = $this->form_data['form']['name']."_$field";
+        $this->form_data['r_only'][$field] = $provided_data->r_only->$field;
       }
+      if(!empty($provided_data->is_new)) $this->form_data['is_new'] = $provided_data->is_new;
+      else $this->form_data['is_new'] = false;
     }
     //var_export($this->form_data['value']);
   }
@@ -211,6 +228,11 @@ class Form_Builder
         default:
             $this->form_data['HTML_type'][$key] = 'text';
         }
+        
+    if (!empty($this->form_data['r_only']) && is_array($this->form_data['r_only']))
+      foreach ($this->form_data['r_only'] as $key=>$value)
+        if ($value) $this->form_data['r_only'][$key] = 'disabled';
+        else $this->form_data['r_only'][$key] = '';
   }
   
   protected function check_request()
@@ -249,77 +271,31 @@ class Form_Builder
       else return '';
     }
   }
-
-}
-
-class Flx_Auth_Form extends Form_Builder
-{
-  function __construct($form_name, $form_action)
+  
+  public function get_values()
   {
-    parent::__construct();
-    $this->form_data = array ('form'=>array('name'=>$form_name, 'action'=>$form_action));
-    $provided_data = array (
-      'caption'=>array('user_email'=>'email', 'user_pass'=>'password'),
-      'type'    =>array('user_email'=>'email', 'user_pass'=>'pass'),
-      'value'   =>array('user_email'=>'', 'user_pass'=>''),
-    );
-    $this->get_data_array($provided_data);
+    $result = '';
+    foreach ($this->form_data['value'] as $key => $value)
+      if ($this->form_data['r_only'][$key] !== true)
+        $result .= '\"'.$key.'\":\"'.$value.'\",';
+        
+    return $result;
   }
 
 }
 
-class Flx_Reg_Form extends Form_Builder
+class Flx_DB_Form extends Form_Builder
 {
-  function __construct($form_name, $form_action)
+  function __construct()
   {
     parent::__construct();
-    $this->form_data = array ('form'=>array('name'=>$form_name, 'action'=>$form_action));
-    $provided_data = array (
-      'caption'=>array('user_email'=>'email', 'user_pass'=>'passwd', 'user_re_pass'=>'re_passwd'),
-      'type'    =>array('user_email'=>'email', 'user_pass'=>'pass', 'user_re_pass'=>'re_pass'),
-      'value'   =>array('user_email'=>'', 'user_pass'=>'', 'user_re_pass'=>''),
-    );
-    $this->get_data_array($provided_data);
   }
 }
 
-class Flx_Edit_Form extends Form_Builder
+class Flx_Custom_Form extends Form_Builder
 {
-  public function draw_form($view_name, &$view_data = null)
-  {
-    if (!empty($this->form_data))
-    {
-      var_export($this->form_data);
-    }
-  }
-}
-
-class Flx_Ch_Pass_Form_Email extends Form_Builder
-{
-  function __construct($form_name, $form_action)
+  function __construct()
   {
     parent::__construct();
-    $this->form_data = array ('form'=>array('name'=>$form_name, 'action'=>$form_action));
-    $provided_data = array (
-      'caption'=>array('user_email'=>'email'),
-      'type'    =>array('user_email'=>'email'),
-      'value'   =>array('user_email'=>''),
-    );
-    $this->get_data_array($provided_data);
-  }
-}
-
-class Flx_Ch_Pass_Form extends Form_Builder
-{
-  function __construct($form_name, $form_action)
-  {
-    parent::__construct();
-    $this->form_data = array ('form'=>array('name'=>$form_name, 'action'=>$form_action));
-    $provided_data = array (
-      'caption'=>array('user_pass'=>'passwd', 'user_re_pass'=>'password'),
-      'type'    =>array('user_pass'=>'pass', 'user_re_pass'=>'re_pass'),
-      'value'   =>array('user_pass'=>'', 'user_re_pass'=>''),
-    );
-    $this->get_data_array($provided_data);
   }
 }

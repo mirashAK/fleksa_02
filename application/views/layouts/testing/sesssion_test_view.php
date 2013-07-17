@@ -27,6 +27,7 @@
 	    <p>User data:</p>
         <code> user_token: {user_token}<br/>
                     user_ip: {user_ip}<br/>
+                    sess_last_activity: {sess_last_activity}<br/>
                     user_dump: {user_dump}<br/>
                     session_dump: {session_dump}<br/>
         </code>

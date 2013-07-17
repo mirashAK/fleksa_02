@@ -2,7 +2,6 @@
 
 class Flx_Session
 {
-
   private $sess_data = array ();
   private $CI = null;
   
@@ -24,11 +23,6 @@ class Flx_Session
       if ($this->sess_token == FALSE) $this->sess_token = '';
       
       $this->sess_ip = getRealIpAddr();
-  }
-  
-  public function __destruct()
-  {
-    //$this->set_session();
   }
   
   function get_full_sess_data()

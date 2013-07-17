@@ -23,44 +23,36 @@
 
     <div id="body">
     
-        <p>User data:</p>
-        <p>{auth_form}</p>
-        <input id="xhr_auth_button" type="button" value="XHR Auth test" />
-        <p>{reg_form}</p>
-        <input id="xhr_reg_button" type="button" value="XHR Reg test" />
-    </div>
+     <p>{type}</p>
+     <p>{caption}</p>
+     <p>{r_only}</p>
+     <p>{value}</p>
+     
 
     <p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds</p>
 </div>
-<script type="text/javascript" src="{base_url}assets/js/jquery.min.js"></script>
-<script type="text/javascript">
-  jQuery(document).ready(function()
-  {
-    jQuery("#xhr_auth_button").on("click", function(event)
-    {
-      jQuery.ajax(
-      {
-        url: jQuery("#auth_form").attr('action'),
-        type: 'post',
-        dataType: 'json',
-        data: {"auth_form" : jQuery("#auth_form").serialize()},
-        success: function(answer){
-          if (answer.valid == true)
-          {
-            if (answer.redirect !== false) window.location = answer.redirect;
-            
-          }
-          else
-          {
-            alert (answer.errors.email);
-          }
-          },
-        error: function(e){
-          console.log("error"+e);
-        }
-      });
-    });
-  });
-</script>
+
+  <?php //Custom scripts, added by add_script() function. Do not touch. ?>
+  {scripts}
+    {script}
+  {/scripts}
+  <?php //Custom scripts ?>
+
+  <script type="text/javascript">
+//     App.Forms_sender(
+//     {
+//       form_name: 'auth_form'
+//     });
+//     
+//     App.Forms_sender(
+//     {
+//       form_name: 'reg_form',
+//       reload_container: '#reload_container',
+//       on_key_press: function (event) { jQuery(event.target).removeClass('error'); },
+//       on_error: function (elem, errors) {elem.addClass('error').after('<span>'+errors+'</span>'); },
+//       before_send: function (form) { form.find('.btn-primary').addClass('is-wait'); }        
+//     });
+  </script>
+
 </body>
 </html> 

@@ -92,4 +92,8 @@ class Flx_User extends Flx_Model
     else return false;
   }
   
+  public function get_public_user_data(&$user)
+  {
+    return $this->row_array($user, 'public_users', 'u_f_user_id = '.$user->user_id);
+  }
 }

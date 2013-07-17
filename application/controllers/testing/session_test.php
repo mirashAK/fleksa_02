@@ -4,7 +4,7 @@ class Session_Test extends Test_Controller {
 
 	public function index()
 	{
-      $this->load->library('session');
+      //$this->load->library('session');
       $this->load->model('users_mdl');
       
       $auth_form = Form_Builder::factory('auth_form', sub_url('/testing/session_test/auth'));
@@ -21,6 +21,7 @@ class Session_Test extends Test_Controller {
       
       $this->view_data['user_token'] = $this->user->user_token;
       $this->view_data['user_ip'] = $this->user->user_ip;
+      $this->view_data['sess_last_activity'] = $this->user_session->sess_last_activity;
       $this->view_data['user_dump'] = var_export($this->user, true);
       $this->view_data['session_dump'] = var_export($this->user_session->get_full_sess_data(), true);
       
