@@ -7,13 +7,43 @@ class Forms_Test extends Test_Controller
  {
     $this->load->model('users_mdl');
 
-    $data = $this->users_mdl->get_user_signature($this->user);
+    $this->view_data['signature'] = var_export($this->users_mdl->get_user_signature($this->user), true);
+    
+    $user_data = $this->users_mdl->get_user($this->user);
+    $this->view_data['user_data'] = var_export($user_data['value'], true);
+    
+    $user_data = $this->users_mdl->get_users_list($this->user);
+    
+    $result = '<tr><th>№</th>';
+    foreach ($user_data->caption as $key=>$value)
+    {
+      $ro = '';
+      if ($user_data->r_only->$key == true) $ro = 'style="background-color: lightgrey;"';
+      $result .= "<th $ro>$value($key)</th>";
+    }
+    $result .= '</tr>';
+
+    foreach ($user_data->values as $key=>$values)
+    {
+      $ro = '';
+      if ($values->r_only == true ) $ro = 'style="background-color: lightgrey;"';
+      $result .= "<tr $ro><td>$key</td>";
+        foreach ($values as $key=>$value)
+        {
+          $ro = '';
+          if (!empty($user_data->r_only->$key) && $user_data->r_only->$key == true ) $ro = 'style="background-color: lightgrey;"';
+          if (!empty($user_data->dict->$key) && $value != 0)  $value = $user_data->dict->$key->value[$value];
+          $result .= "<td $ro>".htmlspecialchars($value).'</td>';
+        }
+      $result .= '</tr>';
+    }
+    $this->view_data['users_list'] = $result;
 
     
-    $this->view_data['type'] = var_export($data['type'], true);
-    $this->view_data['caption'] = var_export($data['caption'], true);
-    $this->view_data['r_only'] = var_export($data['r_only'], true);
-    $this->view_data['value'] = (array_key_exists('value', $data))?var_export($data['value'], true):'';
+//     $this->view_data['type'] = var_export($data['type'], true);
+//     $this->view_data['caption'] = var_export($data['caption'], true);
+//     $this->view_data['r_only'] = var_export($data['r_only'], true);
+//     $this->view_data['value'] = (array_key_exists('value', $data))?var_export($data['value'], true):'';
  
     $this->parse_out('layouts/testing/forms_test_view');
  }
@@ -26,14 +56,17 @@ class Forms_Test extends Test_Controller
     $this->load->model('users_mdl');
     $form = Form_Builder::factory('public_user');
     
+   // var_export($this->users_mdl->get_user($this->user));
+    
     $form->form_data = $this->users_mdl->get_user($this->user);
     
-    //var_export($this->users_mdl->get_user($this->user));
+
     
     if ($form->validate() == true)
     {
       if ($form->is_new) $form->u_f_user_id = $this->user->user_id;
       $this->users_mdl->save_table($this->user, 'public_users', $form, 'u_f_user_id='.$form->u_f_user_id);
+      //var_export($form->get_values());
     }
     else
     {

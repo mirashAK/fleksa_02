@@ -23,9 +23,13 @@
 
     <div id="body">
     
-     <p>{type}</p>
-     <p>{caption}</p>
-     <p>{r_only}</p>
+     <p>{signature}</p>
+     <p>{user_data}</p>
+     <p>
+     <table border="1">
+      {users_list}
+     </table>
+     </p>
      <p>{value}</p>
      
 

@@ -6,11 +6,6 @@ class Form_Builder
   protected $CI = null;
   
   public $xhr_answer = null;
-  
-  //abstract protected function get_data($provided_data = null);
-  //abstract protected function draw_form($view_name, &$view_data = null);
-  //abstract protected function validate($custom_config = array());
-  
   public $errors = array();
   
   function __construct()
@@ -29,15 +24,18 @@ class Form_Builder
     $config_item_name = 'flx_'.strtolower($flx_form_name);
     $config = $CI->config->item($config_item_name);
     
+    
     if (empty($config))
     {
       $form = new Flx_DB_Form ();
-      $form->form_data = array('form'=>array('name'=>$flx_form_name, 'action'=>$flx_form_action));
+      $form->name = $flx_form_name;
+      $form->action = $flx_form_action;
     }
     else
-    {
+    { 
       $form = new Flx_Custom_Form ();
-      $form->form_data = array('form'=>array('name'=>$flx_form_name, 'action'=>$flx_form_action));
+      $form->name = $flx_form_name;
+      $form->action = $flx_form_action;
       $form->get_data_array($config);
     }
     return $form;
@@ -45,12 +43,11 @@ class Form_Builder
   
   function __set($name, $value)
   {
-  
     switch ($name)
     {
       case 'form_data':
-        if (is_array($value)) $this->get_data_array($value);
-        elseif (is_object($value)) $this->get_data_object($value);
+        if (is_array($value) && array_key_exists('value', $value)) $this->get_data_array($value);
+        elseif (is_object($value) && isset($value->value)) $this->get_data_object($value);
         break;
       case 'name':
         $this->name($value);
@@ -90,11 +87,14 @@ class Form_Builder
     $xhr_request = array();
     if (!empty($provided_data))
     {
+      $this->form_data = array_merge($this->form_data, $provided_data);
+    
       $is_xhr_request = $this->CI->input->is_ajax_request();
       if ($is_xhr_request == true) parse_str($this->CI->input->post($this->form_data['form']['name']), $xhr_request);
       
       foreach ($provided_data['value'] as $field=>$value)
       {
+        $this->form_data['name'][$field] = $this->form_data['form']['name']."_$field";
         if ($is_xhr_request == true)
         {
           if (array_key_exists($this->form_data['form']['name']."_$field", $xhr_request))
@@ -110,12 +110,6 @@ class Form_Builder
           else
             $this->form_data['value'][$field] = $provided_data['value'][$field];
         }
-        
-        $this->form_data['caption'][$field] = $provided_data['caption'][$field];
-        $this->form_data['type'][$field] = $provided_data['type'][$field];
-        $this->form_data['name'][$field] = $this->form_data['form']['name']."_$field";
-        if (array_key_exists('r_only', $provided_data))
-          $this->form_data['r_only'][$field] = $provided_data['r_only'][$field];
       }
       if(!empty($provided_data['is_new'])) $this->form_data['is_new'] = $provided_data['is_new'];
       else $this->form_data['is_new'] = false;
@@ -128,36 +122,40 @@ class Form_Builder
     $xhr_request = array();
     if (!empty($provided_data))
     {
+      $this->form_data = array_merge($this->form_data, (array)$provided_data);
+      
+      foreach ($this->form_data as $key=>$value) $this->form_data[$key] = (array)$value;
+      if(array_key_exists('dict', $this->form_data))
+        foreach ($this->form_data['dict'] as $key=>$value) $this->form_data['dict'][$key] = (array)$value;
+        
       $is_xhr_request = $this->CI->input->is_ajax_request();
       if ($is_xhr_request == true) parse_str($this->CI->input->post($this->form_data['form']['name']), $xhr_request);
       
       foreach ($provided_data->value as $field=>$value)
       {
+        $this->form_data['name'][$field] = $this->form_data['form']['name']."_$field";
+        
         if ($is_xhr_request == true)
         {
-          if (array_key_exists($this->form_data['form']['name']."_$field", $xhr_request))
-            $this->form_data['value'][$field] = trim($xhr_request[$this->form_data['form']['name']."_$field"]);
+          if (array_key_exists($this->form_data['name'][$field], $xhr_request))
+            $this->form_data['value'][$field] = trim($xhr_request[$this->form_data['name'][$field]]);
           else
             $this->form_data['value'][$field] = $provided_data->value->$field;
         }
         else
         {
-          $posted_field = trim($this->CI->input->post($this->form_data['form']['name']."_$field"));
+          $posted_field = trim($this->CI->input->post($this->form_data['name'][$field]));
           if (!empty($posted_field))
             $this->form_data['value'][$field] = $posted_field;
           else
             $this->form_data['value'][$field] = $provided_data->value->$field;
         }
         
-        $this->form_data['caption'][$field] = $provided_data->caption->$field;
-        $this->form_data['type'][$field] = $provided_data->type->$field;
-        $this->form_data['name'][$field] = $this->form_data['form']['name']."_$field";
-        $this->form_data['r_only'][$field] = $provided_data->r_only->$field;
       }
       if(!empty($provided_data->is_new)) $this->form_data['is_new'] = $provided_data->is_new;
       else $this->form_data['is_new'] = false;
     }
-    //var_export($this->form_data['value']);
+    //var_export($this->form_data);
   }
   
   public function validate($custom_config = array())
@@ -198,6 +196,12 @@ class Form_Builder
               }
               if ($this->form_data['value'][$key] !== $pass) $errors_arr[$this->form_data['caption'][$key]][] = 'password mismatch';
           break;
+          default:
+              if ($this->form_data['require'][$key] == true && strlen($this->form_data['value'][$key]) == 0)
+              {
+                $errors_arr[$this->form_data['caption'][$key]][] = 'empty';
+                break;
+              }
         }
       if (empty($errors_arr)) return true;
       else
@@ -243,7 +247,7 @@ class Form_Builder
       else return false;
     }
     else
-      foreach ($this->form_data['value'] as $field=>$value)
+      foreach ($this->form_data['type'] as $field=>$value)
         if ($this->CI->input->post($this->form_data['form']['name']."_$field") !==  false) return true;
         
     return false;
@@ -254,6 +258,7 @@ class Form_Builder
     if (!empty($view_data)) $this->form_data = array_merge($this->form_data, $view_data);
     //echo(draw_partial_input($this->form_data, 'u_soname'));
     $this->types_transform_to_HTML();
+    $this->form_data['dict'] = '';
     
     if ($this->CI->input->is_ajax_request() === true)
     {
@@ -275,9 +280,11 @@ class Form_Builder
   public function get_values()
   {
     $result = '';
+    
     foreach ($this->form_data['value'] as $key => $value)
-      if ($this->form_data['r_only'][$key] !== true)
-        $result .= '\"'.$key.'\":\"'.$value.'\",';
+      if ($key !== 'r_only' && $key !== 'owner')
+        if ($this->form_data['r_only'][$key] !== true)
+          $result .= '\"'.$key.'\":\"'.$value.'\",';
         
     return $result;
   }
@@ -297,5 +304,21 @@ class Flx_Custom_Form extends Form_Builder
   function __construct()
   {
     parent::__construct();
+  }
+ 
+  public function get_data_array($provided_data = null)
+  {
+    $prepared_arr = array ();
+
+    foreach ($provided_data['type'] as $field=>$field_type)
+    {
+      $prepared_arr['type'][$field] = $field_type;
+      $prepared_arr['caption'][$field] = (isset($provided_data['caption'][$field])) ? $provided_data['caption'][$field] : $field;
+      $prepared_arr['require'][$field] = (isset($provided_data['require']) && in_array($field, $provided_data['require'])) ? true : false;
+      $prepared_arr['unique'][$field] = (isset($provided_data['unique']) && in_array($field, $provided_data['unique'])) ? true : false;
+      $prepared_arr['value'][$field] = (isset($provided_data['value'][$field])) ? $provided_data['value'][$field] : '';
+    }
+
+    parent::get_data_array($prepared_arr);
   }
 }

@@ -75,7 +75,9 @@ class Flx_Model extends CI_Model
       {
         $final_result['type'][$key] = $value['type'];
         $final_result['caption'][$key] = $value['caption'];
-        $final_result['r_only'][$key] = $value['r_only'];
+        $final_result['r_only'][$key] = (bool)$value['r_only'];
+        $final_result['require'][$key] = (bool)$value['require'];
+        $final_result['unique'][$key] = (bool)$value['unique'];
       }
       
       // А теперь самое интересное - начинаем работать напрямую с методами mysqli
@@ -91,7 +93,8 @@ class Flx_Model extends CI_Model
           // Дозаполним результирующий массив значениями
           foreach ($second_result as $key=>$value)
           {
-            $final_result['value'][$key] = $value;
+            if ($key == 'r_only') $final_result['value'][$key] = (bool)$value;
+            else $final_result['value'][$key] = $value;
           }
         }
         else $final_result['value'] = array(); 
@@ -154,7 +157,9 @@ class Flx_Model extends CI_Model
       {
         $final_result['type'][$key] = $value['type'];
         $final_result['caption'][$key] = $value['caption'];
-        $final_result['r_only'][$key] = $value['r_only'];
+        $final_result['r_only'][$key] = (bool)$value['r_only'];
+        $final_result['require'][$key] = (bool)$value['require'];
+        $final_result['unique'][$key] = (bool)$value['unique'];
       }
       
       // А теперь самое интересное - начинаем работать напрямую с методами mysqli
@@ -172,6 +177,7 @@ class Flx_Model extends CI_Model
           while ($row_result = mysqli_fetch_assoc($second_result))
           {
             $row_result['position'] = CONST_POS_MIDDLE;
+            $row_result['r_only'] = (bool)$row_result['r_only'];
             if ($array_counter == 0) $row_result['position'] = CONST_POS_FIRST;
             $array_counter = array_push ($final_result['values'],$row_result);
           }
@@ -246,13 +252,17 @@ class Flx_Model extends CI_Model
       {
         $final_result['type'][$key] = $value['type'];
         $final_result['caption'][$key] = $value['caption'];
-        $final_result['r_only'][$key] = $value['r_only'];
+        $final_result['r_only'][$key] = (bool)$value['r_only'];
+        $final_result['require'][$key] = (bool)$value['require'];
+        $final_result['unique'][$key] = (bool)$value['unique'];
       }
       
       // Преобразуем в объект
       $final_result['type'] = (object)$final_result['type'];
       $final_result['caption'] = (object)$final_result['caption'];
       $final_result['r_only'] = (object)$final_result['r_only'];
+      $final_result['require'] = (object)$final_result['require'];
+      $final_result['unique'] = (object)$final_result['unique'];
       
       // А теперь самое интересное - начинаем работать напрямую с методами mysqli
       // Сначала получим второй результат запроса, в качестве объекта типа mysqli - $this->db->conn_id
@@ -267,7 +277,8 @@ class Flx_Model extends CI_Model
           // Дозаполним результирующий массив значениями
           foreach ($second_result as $key=>$value)
           {
-            $final_result['value'][$key] = $value;
+            if ($key == 'r_only') $final_result['value'][$key] = (bool)$value;
+            else $final_result['value'][$key] = $value;
           }
           $final_result['value'] = (object)$final_result['value'];
         }
@@ -335,11 +346,16 @@ class Flx_Model extends CI_Model
         $final_result['type'][$key] = $value['type'];
         $final_result['caption'][$key] = $value['caption'];
         $final_result['r_only'][$key] = $value['r_only'];
+        $final_result['r_only'][$key] = (bool)$value['r_only'];
+        $final_result['require'][$key] = (bool)$value['require'];
+        $final_result['unique'][$key] = (bool)$value['unique'];
       }
       // Преобразуем в объект
       $final_result['type'] = (object)$final_result['type'];
       $final_result['caption'] = (object)$final_result['caption'];
       $final_result['r_only'] = (object)$final_result['r_only'];
+      $final_result['require'] = (object)$final_result['require'];
+      $final_result['unique'] = (object)$final_result['unique'];
       
       // А теперь самое интересное - начинаем работать напрямую с методами mysqli
       // Сначала получим второй результат запроса, в качестве объекта типа mysqli - $this->db->conn_id
@@ -356,6 +372,7 @@ class Flx_Model extends CI_Model
           while ($row_result = mysqli_fetch_assoc($second_result))
           {
             $row_result['position'] = CONST_POS_MIDDLE;
+            $row_result['r_only'] = (bool)$row_result['r_only'];
             if ($array_counter == 0) $row_result['position'] = CONST_POS_FIRST;
             $array_counter = array_push ($final_result['values'], (object)$row_result);
           }
@@ -448,9 +465,10 @@ class Flx_Model extends CI_Model
       {
         $final_result['type'][$key] = $value['type'];
         $final_result['caption'][$key] = $value['caption'];
-        $final_result['r_only'][$key] = $value['r_only'];
+        $final_result['r_only'][$key] = (bool)$value['r_only'];
+        $final_result['require'][$key] = (bool)$value['require'];
+        $final_result['unique'][$key] = (bool)$value['unique'];
         $final_result['value'][$key] = '';
-        //if ($value['r_only'] == false) $final_result['r_only'] = false;
       }
       
       // Поищем справочники (dicts) прицепленные к полям таблицы
