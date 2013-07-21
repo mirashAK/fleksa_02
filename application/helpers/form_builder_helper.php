@@ -9,3 +9,8 @@ function draw_partial_label ($field_id)
 {
 
 }
+
+function draw_radiobox ($field_id)
+{
+
+}

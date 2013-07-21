@@ -257,7 +257,75 @@ class Form_Builder
   {
     if (!empty($view_data)) $this->form_data = array_merge($this->form_data, $view_data);
     //echo(draw_partial_input($this->form_data, 'u_soname'));
+//     echo('<br/>');
+//     var_export($this->form_data['dict']);
+    $view_string = '';
+    // Пропарсим view на предмет вывода справочника
+    if (!empty($this->form_data['dict']))
+    {
+      $l_d = $this->CI->parser->l_delim;
+      $r_d = $this->CI->parser->r_delim;
+    
+      $view_string = $this->CI->load->view($view_name, $this->form_data, true);
+//       echo('<br/>');
+      var_export(htmlentities($view_string)); echo('<br/>');
+      foreach ($this->form_data['dict'] as $key=>$val_array)
+      {
+        switch ($this->form_data['type'][$key]) 
+        {
+          case 'radio':
+            $result_arr = array();
+            $label_pattern = '~<label\s[^>]*for\s*=\s*\"??[^\" >]*'.$key.'[^\" >]*?\"??[^>]*>(.*)<\/label>~simU';
+            $radio_pattern = '~<input\s[^>]*name\s*=\s*\"??[^\" >]*'.$key.'[^\" >]*?\"??[^>]*>~simU';
+            
+            $label = false; $input = false;
+            if (0 !== preg_match ($radio_pattern, $view_string, $result_arr)) $input = $result_arr[0];
+            if (0 !== preg_match ($label_pattern, $view_string, $result_arr)) $label = $result_arr[0];
+            if (0 !== preg_match ($radio_pattern, $result_arr[1], $result_arr)) $input = false;
+            
+           echo('<br/>');echo('<br/>');
+              
+            var_export(htmlentities($label));echo('<br/>');
+            var_export(htmlentities($input));echo('<br/>');
+            
+              $replace_result = '';
+              foreach ($val_array['value'] as $id=>$value)
+              {
+                $search  = array(
+                    '/'.$l_d.'caption:'.$key.$r_d.'/',
+                    '/'.$l_d.'id:'.$key.$r_d.'/',
+                );
+                $replace = array(
+                    $this->form_data['caption'][$key],
+                    $key.'_'.$id,
+                );
+                
+                if ($label) 
+                else 
+               }
+               
+                //$view_string = preg_replace ( $search , $replace , $view_string , 1 );
+
+          break;
+          case 'select':
+              foreach ($val_array['value'] as $id=>$value)
+              {/*echo($value); echo('<br/>');*/}
+          break;
+          case 'multi':
+              foreach ($val_array['value'] as $id=>$value)
+              {/*echo($value); echo('<br/>');*/}
+          break;
+         }
+      }
+    }
+//           echo('<br/>');
+//       var_export(htmlentities($view_string)); echo('<br/>');
+//      ~<label\s[^>]*for\s*=\s*\"??[^\" >]*u_name[^\" >]*?\"??[^>]*>.*<\/label>~simU
+//     ~<input\s[^>]*name\s*=\s*\"??[^\" >]*u_gender[^\" >]*?\"??[^>]*>~simU
     $this->types_transform_to_HTML();
+    
+    
+    
     $this->form_data['dict'] = '';
     
     if ($this->CI->input->is_ajax_request() === true)
@@ -267,12 +335,14 @@ class Form_Builder
         $this->xhr_answer->valid = false;
         $this->xhr_answer->errors = $this->errors;
       }
-      if (!empty($view_name)) $this->xhr_answer->view = $this->CI->parser->parse($view_name, $this->form_data, true);
+      if (!empty($view_string)) $this->xhr_answer->view = $this->CI->parser->parse_string($view_string, $this->form_data, true);
+      elseif (!empty($view_name)) $this->xhr_answer->view = $this->CI->parser->parse($view_name, $this->form_data, true);
       $this->xhr_answer->send();
     }
     else
     {
-      if (!empty($view_name)) return $this->CI->parser->parse($view_name, $this->form_data, true);
+      if (!empty($view_string)) return $this->CI->parser->parse_string($view_string, $this->form_data, true);
+      elseif (!empty($view_name)) return $this->CI->parser->parse($view_name, $this->form_data, true);
       else return '';
     }
   }
