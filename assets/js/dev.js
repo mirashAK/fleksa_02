@@ -84,3 +84,22 @@ jQuery(document).ready(function()
   
   
 }); 
+
+
+function prep_form_data(form){
+    var a = [];
+    $(form).
+    find("input[type='checkbox']:checked, input[type='file'], input[type='hidden'], input[type='password'], input[type='radio']:checked, input[type='text'], textarea, select").
+    each(function(){
+        if(this.tagName == 'SELECT' && $(this).attr('multiple') == true) {
+            var select_name = this.name;
+            $(this).find('option:selected').each(function(){
+                a.push(select_name+'[]=' + this.value);
+            })
+        } else {
+            var content = $(this).hasClass('tiny-mce') ? tinyMCE.get($(this).attr('id')).getContent() : this.value;
+            a.push(this.name + '=' + encodeURIComponent(content));
+        }
+    });
+    return a.join('&');
+}

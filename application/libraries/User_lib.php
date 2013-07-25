@@ -119,9 +119,15 @@ class User_lib
     $this->user_ip = $this->user_session->sess_ip;
     $this->user_last_activity = $this->user_session->sess_last_activity;
     
-    //if ($this->user_id > 0)
-    $this->user_public =  $this->flx_user_mdl->get_public_user_data($this);
-
+//     if ($this->user_id > 0)
+//     {
+//       $this->user_public =  $this->flx_user_mdl->get_public_user_data($this);
+//       $this->user_lang = $this->user_public->u_lang;
+//     }
+//     else
+//     {
+//       $this->user_lang = null;
+//     }
     
     unset($result);
   }

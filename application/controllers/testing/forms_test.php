@@ -6,8 +6,6 @@ class Forms_Test extends Test_Controller
  public function index()
  {
     $this->load->model('users_mdl');
-    $this->lang->load('site/forms', $this->config->item('language'));
-    $this->view_data['lang'] = $this->lang->language;
 
     $this->view_data['signature'] = var_export($this->users_mdl->get_user_signature($this->user), true);
     
@@ -57,6 +55,8 @@ class Forms_Test extends Test_Controller
   {
     $this->load->model('users_mdl');
     $form = Form_Builder::factory('public_user');
+    $this->lang->load('site/test', $this->config->item('language'));
+    $this->view_data['lang'] = $this->lang->language;
     
    // var_export($this->users_mdl->get_user($this->user));
     

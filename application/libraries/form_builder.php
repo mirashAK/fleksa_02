@@ -23,8 +23,7 @@ class Form_Builder
     
     $config_item_name = 'flx_'.strtolower($flx_form_name);
     $config = $CI->config->item($config_item_name);
-    
-    
+
     if (empty($config))
     {
       $form = new Flx_DB_Form ();
@@ -44,10 +43,10 @@ class Form_Builder
   function __set($name, $value)
   {
     switch ($name)
-    {
+    { 
       case 'form_data':
-        if (is_array($value) && array_key_exists('value', $value)) $this->get_data_array($value);
-        elseif (is_object($value) && isset($value->value)) $this->get_data_object($value);
+        if (is_array($value)) $this->get_data_array($value);
+        elseif (is_object($value)) $this->get_data_object($value);
         break;
       case 'name':
         $this->name($value);
@@ -83,12 +82,15 @@ class Form_Builder
   }
   
   public function get_data_array($provided_data = null)
-  {
+  {    
     $xhr_request = array();
     if (!empty($provided_data))
     {
+      if (is_array($provided_data) && !array_key_exists('value', $provided_data))        
+        $provided_data = array('value'=>$provided_data);
+
       $this->form_data = array_merge($this->form_data, $provided_data);
-    
+
       $is_xhr_request = $this->CI->input->is_ajax_request();
       if ($is_xhr_request == true) parse_str($this->CI->input->post($this->form_data['form']['name']), $xhr_request);
       
@@ -114,7 +116,7 @@ class Form_Builder
       if(!empty($provided_data['is_new'])) $this->form_data['is_new'] = $provided_data['is_new'];
       else $this->form_data['is_new'] = false;
     }
-    //var_export($this->form_data['value']);
+     //var_export($this->form_data);
   }
   
   public function get_data_object($provided_data = null)
@@ -176,13 +178,13 @@ class Form_Builder
               if (!preg_match("/.+\@.+\..+/", $this->form_data['value'][$key])) $errors_arr[$this->form_data['caption'][$key]][] = 'not email';
           break;
           case 'subdomain':
-              if (strlen($this->form_data['value'][$key]) == 0)
+              if ($this->form_data['require'][$key] == true && strlen($this->form_data['value'][$key]) == 0)
               { 
                 $errors_arr[$this->form_data['caption'][$key]][] = 'empty';
                 break;
               }
               $this->form_data['value'][$key] = strtolower ($this->form_data['value'][$key]);
-              if (!preg_match("/^[a-z0-9]+$/", $this->form_data['value'][$key])) $errors_arr[$this->form_data['caption'][$key]][] = 'forbidden chars';
+              if (strlen($this->form_data['value'][$key]) > 0 && !preg_match("/^[a-z0-9]+$/", $this->form_data['value'][$key])) $errors_arr[$this->form_data['caption'][$key]][] = 'forbidden chars';
           break;
           case 'pass':
               $pass = $this->form_data['value'][$key];
@@ -256,9 +258,6 @@ class Form_Builder
   public function draw_form($view_name = null, &$view_data = null)
   {
     if (!empty($view_data)) $this->form_data = array_merge($this->form_data, $view_data);
-    //echo(draw_partial_input($this->form_data, 'u_soname'));
-//     echo('<br/>');
-//     var_export($this->form_data['dict']);
     $view_string = '';
     // Пропарсим view на предмет вывода справочника
     if (!empty($this->form_data['dict']))
@@ -267,49 +266,74 @@ class Form_Builder
       $r_d = $this->CI->parser->r_delim;
     
       $view_string = $this->CI->load->view($view_name, $this->form_data, true);
-//       echo('<br/>');
-      var_export(htmlentities($view_string)); echo('<br/>');
       foreach ($this->form_data['dict'] as $key=>$val_array)
-      {
+      { 
+        // Set default value
+        if (empty($this->form_data['value'][$key])) $this->form_data['value'][$key] = 1;
+        
         switch ($this->form_data['type'][$key]) 
         {
           case 'radio':
+          
+            $label_pattern = '<label[^>]*for\s*=\s*\"??[^\" >]*?'.$key.'[^\" >]*?\"??[^>]*>[^<]*<\/label>';
+            $radio_pattern = '<input[^>]*name\s*=\s*\"??[^\" >]*?'.$key.'[^\" >]*?\"??[^>]*/>';
+            $inside_pattern = '<label[^>]*>[^<]*'.$radio_pattern.'[^<]*<\/label>';
             $result_arr = array();
-            $label_pattern = '~<label\s[^>]*for\s*=\s*\"??[^\" >]*'.$key.'[^\" >]*?\"??[^>]*>(.*)<\/label>~simU';
-            $radio_pattern = '~<input\s[^>]*name\s*=\s*\"??[^\" >]*'.$key.'[^\" >]*?\"??[^>]*>~simU';
+            $replace_string = false;
+            if (0 !== preg_match ('~(<p[^>]*>)*?\s*'.$inside_pattern.'[^<]*(<\/p>)*?(<br\s*?\/>)*?~siU', $view_string, $result_arr)) $replace_string = $result_arr[0];
+            elseif (0 !== preg_match ('~(<p[^>]*>)*?\s*'.$radio_pattern.'[^<]*'.$label_pattern.'[^<]*(<\/p>)*?(<br\s*?\/>)*?~siU', $view_string, $result_arr)) $replace_string = $result_arr[0];
+            elseif (0 !== preg_match ('~(<p[^>]*>)*?\s*'.$label_pattern.'[^<]*'.$radio_pattern.'[^<]*(<\/p>)*?(<br\s*?\/>)*?~siU', $view_string, $result_arr)) $replace_string =  $result_arr[0];
             
-            $label = false; $input = false;
-            if (0 !== preg_match ($radio_pattern, $view_string, $result_arr)) $input = $result_arr[0];
-            if (0 !== preg_match ($label_pattern, $view_string, $result_arr)) $label = $result_arr[0];
-            if (0 !== preg_match ($radio_pattern, $result_arr[1], $result_arr)) $input = false;
-            
-           echo('<br/>');echo('<br/>');
-              
-            var_export(htmlentities($label));echo('<br/>');
-            var_export(htmlentities($input));echo('<br/>');
-            
-              $replace_result = '';
+            if ($replace_string !== false)
+            {
+              $new_string = '';
               foreach ($val_array['value'] as $id=>$value)
               {
                 $search  = array(
                     '/'.$l_d.'caption:'.$key.$r_d.'/',
                     '/'.$l_d.'id:'.$key.$r_d.'/',
+                    '/'.$l_d.'value:'.$key.$r_d.'/',
+                    '/'.$l_d.'checked:'.$key.$r_d.'/',
                 );
                 $replace = array(
-                    $this->form_data['caption'][$key],
+                    $value,
                     $key.'_'.$id,
+                    $id,
+                    ($this->form_data['value'][$key] == $id?'checked':''),
                 );
-                
-                if ($label) 
-                else 
+                $new_string .= preg_replace ( $search , $replace , $replace_string );
                }
-               
-                //$view_string = preg_replace ( $search , $replace , $view_string , 1 );
-
+              $view_string = str_replace ( $replace_string , $new_string , $view_string);
+            }
           break;
+          
           case 'select':
+            $select_pattern = '<option[^>]*value\s*=\s*\"??[^\" >]*?'.$key.'[^\" >]*?\"??[^>]*>[^<]*<\/option>';
+           
+            $replace_string = false;
+            if (0 !== preg_match ('~'.$select_pattern.'~siU', $view_string, $result_arr)) $replace_string = $result_arr[0];
+
+            if ($replace_string !== false)
+            {
+              $new_string = '';
               foreach ($val_array['value'] as $id=>$value)
-              {/*echo($value); echo('<br/>');*/}
+              {
+                $search  = array(
+                    '/'.$l_d.'caption:'.$key.$r_d.'/',
+                    '/'.$l_d.'id:'.$key.$r_d.'/',
+                    '/'.$l_d.'value:'.$key.$r_d.'/',
+                    '/'.$l_d.'selected:'.$key.$r_d.'/',
+                );
+                $replace = array(
+                    $value,
+                    $key.'_'.$id,
+                    $id,
+                    ($this->form_data['value'][$key] == $id?'selected="selected"':''),
+                );
+                $new_string .= preg_replace ( $search , $replace , $replace_string );
+               }
+              $view_string = str_replace ( $replace_string , $new_string , $view_string);
+            }
           break;
           case 'multi':
               foreach ($val_array['value'] as $id=>$value)
@@ -318,14 +342,9 @@ class Form_Builder
          }
       }
     }
-//           echo('<br/>');
-//       var_export(htmlentities($view_string)); echo('<br/>');
-//      ~<label\s[^>]*for\s*=\s*\"??[^\" >]*u_name[^\" >]*?\"??[^>]*>.*<\/label>~simU
-//     ~<input\s[^>]*name\s*=\s*\"??[^\" >]*u_gender[^\" >]*?\"??[^>]*>~simU
     $this->types_transform_to_HTML();
     
-    
-    
+
     $this->form_data['dict'] = '';
     
     if ($this->CI->input->is_ajax_request() === true)
@@ -352,7 +371,7 @@ class Form_Builder
     $result = '';
     
     foreach ($this->form_data['value'] as $key => $value)
-      if ($key !== 'r_only' && $key !== 'owner')
+      if ($key !== 'r_only' && $key !== 'owner' && array_key_exists($key, $this->form_data['type']))
         if ($this->form_data['r_only'][$key] !== true)
           $result .= '\"'.$key.'\":\"'.$value.'\",';
         
@@ -379,16 +398,20 @@ class Flx_Custom_Form extends Form_Builder
   public function get_data_array($provided_data = null)
   {
     $prepared_arr = array ();
-
-    foreach ($provided_data['type'] as $field=>$field_type)
-    {
-      $prepared_arr['type'][$field] = $field_type;
-      $prepared_arr['caption'][$field] = (isset($provided_data['caption'][$field])) ? $provided_data['caption'][$field] : $field;
-      $prepared_arr['require'][$field] = (isset($provided_data['require']) && in_array($field, $provided_data['require'])) ? true : false;
-      $prepared_arr['unique'][$field] = (isset($provided_data['unique']) && in_array($field, $provided_data['unique'])) ? true : false;
-      $prepared_arr['value'][$field] = (isset($provided_data['value'][$field])) ? $provided_data['value'][$field] : '';
-    }
-
+    
+    if (isset($provided_data['type']))
+      foreach ($provided_data['type'] as $field=>$field_type)
+      {
+        $prepared_arr['type'][$field] = $field_type;
+        $prepared_arr['caption'][$field] = (isset($provided_data['caption'][$field])) ? $provided_data['caption'][$field] : $field;
+        $prepared_arr['require'][$field] = (isset($provided_data['require']) && in_array($field, $provided_data['require'])) ? true : false;
+        $prepared_arr['unique'][$field] = (isset($provided_data['unique']) && in_array($field, $provided_data['unique'])) ? true : false;
+        $prepared_arr['value'][$field] = (isset($provided_data['value'][$field])) ? $provided_data['value'][$field] : '';
+        $prepared_arr['r_only'][$field] = (isset($provided_data['r_only'][$field])) ? $provided_data['r_only'][$field] : false;
+        if (isset($provided_data['dict'][$field])) $prepared_arr['dict'][$field] = $provided_data['dict'][$field];
+      }
+    else $prepared_arr = $provided_data;
+    
     parent::get_data_array($prepared_arr);
   }
 }
