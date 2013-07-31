@@ -20,6 +20,7 @@ DELIMITER $$
 --
 -- Процедури
 --
+DROP PROCEDURE IF EXISTS `check_uniq`$$
 CREATE PROCEDURE `check_uniq`(IN in_table_name VARCHAR (100), IN in_condition TEXT)
     READS SQL DATA
 BEGIN
@@ -42,6 +43,7 @@ BEGIN
 
 END$$
 
+DROP PROCEDURE IF EXISTS `create_table`$$
 CREATE PROCEDURE `create_table`(IN `in_table_name` VARCHAR(40), IN `in_columns` TEXT, IN `in_sel` TINYINT UNSIGNED, IN `in_upd` TINYINT UNSIGNED, IN `in_ins` TINYINT UNSIGNED, IN `in_del` TINYINT UNSIGNED)
     READS SQL DATA
 BEGIN
@@ -110,6 +112,7 @@ BEGIN
 
 END$$
 
+DROP PROCEDURE IF EXISTS `get_columns_defs`$$
 CREATE PROCEDURE `get_columns_defs`(IN in_table_name VARCHAR(40), IN in_read_level INT, IN in_write_level INT,
  OUT out_columns VARCHAR(255), OUT out_defs TEXT, OUT out_dicts VARCHAR(255))
 BEGIN
@@ -161,6 +164,7 @@ BEGIN
 
 END$$
 
+DROP PROCEDURE IF EXISTS `get_signature`$$
 CREATE PROCEDURE `get_signature`(IN `in_user_token` VARCHAR(40), IN `in_ip` VARCHAR(15), IN `in_table_name` VARCHAR(40))
     READS SQL DATA
 BEGIN
@@ -223,6 +227,7 @@ BEGIN
     END IF;
 END$$
 
+DROP PROCEDURE IF EXISTS `get_table`$$
 CREATE PROCEDURE `get_table`(
     IN in_user_token VARCHAR(40), 
     IN in_ip VARCHAR(15), 
@@ -328,6 +333,7 @@ BEGIN
 
 END$$
 
+DROP PROCEDURE IF EXISTS `get_user`$$
 CREATE PROCEDURE `get_user`(IN `in_user_token` VARCHAR(40), IN `in_ip` VARCHAR(15))
     READS SQL DATA
 BEGIN
@@ -397,6 +403,7 @@ BEGIN
 
 END$$
 
+DROP PROCEDURE IF EXISTS `get_users`$$
 CREATE PROCEDURE `get_users`(IN in_user_token varchar(40), IN in_ip varchar(15))
     READS SQL DATA
 BEGIN
@@ -412,6 +419,7 @@ BEGIN
 
 END$$
 
+DROP PROCEDURE IF EXISTS `set_table`$$
 CREATE PROCEDURE `set_table`(
     IN in_user_token VARCHAR(40),
     IN in_ip VARCHAR(15),
@@ -522,6 +530,7 @@ END$$
 --
 -- Функції
 --
+DROP FUNCTION IF EXISTS `add_user`$$
 CREATE FUNCTION `add_user`(in_login varchar(150), in_email varchar(150), in_pass varchar(250), in_data TEXT) RETURNS varchar(100) CHARSET utf8
     READS SQL DATA
 BEGIN
@@ -574,6 +583,7 @@ BEGIN
     END IF;
 END$$
 
+DROP FUNCTION IF EXISTS `check_token`$$
 CREATE FUNCTION `check_token`(`in_user_token` VARCHAR(40), `in_ip` VARCHAR(15)) RETURNS int(11)
     READS SQL DATA
 BEGIN
@@ -646,6 +656,7 @@ BEGIN
 
 END$$
 
+DROP FUNCTION IF EXISTS `clear_input_data`$$
 CREATE FUNCTION `clear_input_data`( in_data varchar(255) ) RETURNS varchar(255) CHARSET utf8
     NO SQL
 BEGIN
@@ -653,6 +664,7 @@ BEGIN
     RETURN in_data;  
 END$$
 
+DROP FUNCTION IF EXISTS `do_auth`$$
 CREATE FUNCTION `do_auth`(auth_key varchar(150), pass varchar(255), ip varchar(15), exist_token varchar(40)) RETURNS varchar(40) CHARSET utf8
     READS SQL DATA
 BEGIN
@@ -706,6 +718,7 @@ BEGIN
     END IF;
 END$$
 
+DROP FUNCTION IF EXISTS `gen_passwd`$$
 CREATE FUNCTION `gen_passwd`(in_pass varchar(250), in_salt varchar(40)) RETURNS varchar(80) CHARSET utf8
     READS SQL DATA
 BEGIN
@@ -733,6 +746,7 @@ BEGIN
 
 END$$
 
+DROP FUNCTION IF EXISTS `logout_user`$$
 CREATE FUNCTION `logout_user`(in_user_token VARCHAR(40), in_ip VARCHAR(15)) RETURNS varchar(40) CHARSET utf8
     READS SQL DATA
 BEGIN
@@ -749,6 +763,7 @@ BEGIN
 RETURN var_user_token;
 END$$
 
+DROP FUNCTION IF EXISTS `reg_user`$$
 CREATE FUNCTION `reg_user`(reg_token varchar(40), ip varchar(15), exist_token varchar(40)) RETURNS text CHARSET utf8
     READS SQL DATA
 BEGIN
@@ -814,6 +829,7 @@ BEGIN
 RETURN CONCAT('{"user_token":"',reg_token,'","user_id":',var_user_id,',"user_data":"',var_user_data,'"}');
 END$$
 
+DROP FUNCTION IF EXISTS `reset_passwd`$$
 CREATE FUNCTION `reset_passwd`(pass_token varchar(40), ip varchar(15), in_pass varchar(250), exist_token varchar(40)) RETURNS varchar(40) CHARSET utf8
     READS SQL DATA
 BEGIN
@@ -855,6 +871,7 @@ BEGIN
 RETURN pass_token;
 END$$
 
+DROP FUNCTION IF EXISTS `set_session`$$
 CREATE FUNCTION `set_session`(`in_user_token` VARCHAR(40), `in_ip` VARCHAR(15), `in_data` TEXT) RETURNS varchar(40) CHARSET utf8
     READS SQL DATA
 BEGIN
@@ -888,6 +905,7 @@ BEGIN
 RETURN in_user_token;
 END$$
 
+DROP FUNCTION IF EXISTS `token_passwd`$$
 CREATE FUNCTION `token_passwd`(in_email varchar(150)) RETURNS varchar(100) CHARSET utf8
     READS SQL DATA
 BEGIN

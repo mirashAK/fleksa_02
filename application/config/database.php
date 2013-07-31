@@ -48,10 +48,10 @@
 $active_group = 'default';
 $active_record = TRUE;
 
-$db['default']['hostname'] = 'localhost';
-$db['default']['username'] = 'star_task';
-$db['default']['password'] = 'LDqcTSCrFr4PB8L6';
-$db['default']['database'] = 'star_task';
+$db['default']['hostname'] = 'iosnisar1.design.isd.dp.ua';
+$db['default']['username'] = 'olku';
+$db['default']['password'] = '123';
+$db['default']['database'] = 'olku_fleksa_test';
 $db['default']['dbdriver'] = 'mysqli';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;
@@ -64,10 +64,14 @@ $db['default']['swap_pre'] = '';
 $db['default']['autoinit'] = TRUE;
 $db['default']['stricton'] = FALSE;
 
-$db['test']['hostname'] = 'localhost';
-$db['test']['username'] = 'exec_user';
-$db['test']['password'] = '3eJEh4xOBi';
-$db['test']['database'] = 'fleksa_test';
+// $db['test']['username'] = 'exec_user';
+// $db['test']['password'] = '3eJEh4xOBi';
+// $db['test']['database'] = 'fleksa_test';
+
+$db['test']['hostname'] = 'iosnisar1.design.isd.dp.ua';
+$db['test']['username'] = 'olku';
+$db['test']['password'] = '123';
+$db['test']['database'] = 'olku_fleksa_test';
 $db['test']['dbdriver'] = 'mysqli';
 $db['test']['dbprefix'] = '';
 $db['test']['pconnect'] = TRUE;
