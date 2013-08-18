@@ -92,10 +92,10 @@ if ( ! function_exists('res_url'))
  */
 if ( ! function_exists('sub_domain'))
 {
-    function sub_domain()
+    function sub_domain($new_sub_domain = null)
     {
         $CI =& get_instance();
-        return $CI->config->sub_domain();
+        return $CI->config->sub_domain($new_sub_domain);
     }
 }
 

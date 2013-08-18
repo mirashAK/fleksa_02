@@ -54,6 +54,9 @@ class Form_Builder
       case 'action':
         $this->action($value);
         break;
+      case 'dict':
+        $this->form_data['dict'] = $value;
+        break;
       default:
         if (array_key_exists($name, $this->form_data['value'])) $this->form_data['value'][$name] = $value;
     }
@@ -127,6 +130,13 @@ class Form_Builder
     $xhr_request = array();
     if (!empty($provided_data))
     {
+      if (is_object($provided_data) && !isset($provided_data->value))      
+      {
+        $tmp_obj = new stdClass();
+        $tmp_obj->value = $provided_data;
+        $provided_data = $tmp_obj;
+      }  
+      
       $this->form_data = array_merge($this->form_data, (array)$provided_data);
       
       foreach ($this->form_data as $key=>$value) $this->form_data[$key] = (array)$value;

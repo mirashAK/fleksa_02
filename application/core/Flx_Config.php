@@ -119,8 +119,9 @@ class Flx_Config extends CI_Config {
   * @access  public
   * @return  string
   */
-  function sub_domain()
+  function sub_domain($new_sub_domain = null)
   {
+    if (!empty($new_sub_domain)) $this->config['sub_domain'] = $new_sub_domain;
     return $this->config['sub_domain'];
   }
   

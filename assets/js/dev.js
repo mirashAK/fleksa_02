@@ -23,7 +23,7 @@ jQuery(document).ready(function()
 
       // Контейнер используем для замены его содержимого кодом HTML, сформированным после обработки формы
       var reload_container = form_data.reload_container || '.'+form.attr('name')+'_reload_container';
-      reload_container = check_result(form.parents(reload_container).first()) || false;
+      reload_container = check_result(jQuery.find(reload_container).first()) || false;
       
       var before_send = form_data.before_send || function(){};
       var after_send = form_data.after_send || function(){};
@@ -40,6 +40,9 @@ jQuery(document).ready(function()
         {
           if (answer.valid == true)
           {
+            // Меняем значения полей, например при добавлении новой записи
+            if (answer.update !== false)
+              jQuery.each(answer.update, function (name, value) { form.find('[name="'+name+'"]').val(value)}); 
             // Сервер в ответе выдаёт либо адрес редиректа
             if (answer.redirect !== false) window.location = answer.redirect;
             //  либо код HTML, который нужно поместить на место формы (в reload_container)
