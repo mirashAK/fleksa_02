@@ -64,6 +64,11 @@ class Flx_Controller extends CI_Controller {
     $this->view_data['scripts'][] = array('script'=>'<script src="'.$script_name.'"></script>');
   }
   
+  protected function redirect($url, $type = 'refresh')
+  {
+    $this->user_session->save();
+    redirect($url, $type);
+  }
 }
 
 class Default_Controller extends Flx_Controller
