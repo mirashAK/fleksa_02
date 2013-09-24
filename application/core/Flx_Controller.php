@@ -8,6 +8,7 @@ class Flx_Controller extends CI_Controller {
   {
     parent::__construct();
     $this->view_data['scripts'] = array();
+    require_once APPPATH.'libraries/safeClass.php';
     require_once APPPATH.'libraries/Form_Builder.php';
   }
   
