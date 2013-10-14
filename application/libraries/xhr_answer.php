@@ -10,12 +10,24 @@ class Xhr_Answer
     $this->answer_data['errors'] = array();
     $this->answer_data['view'] = false;
     $this->answer_data['redirect']= false;
+    $this->answer_data['update']= false;
+    $this->answer_data['message']= false;
   }
   
   public function send()
   {
-    echo (json_encode($this->answer_data));
-    exit ();
+    $json_data = json_encode($this->answer_data);
+    $json_data_length = strlen($json_data);
+
+    //ob_end_clean();
+    header("Connection: close");
+    ignore_user_abort(); // optional
+    ob_start();
+    echo($json_data);
+    $size = ob_get_length();
+    header("Content-Length: {$json_data_length}");
+    ob_end_flush(); // Strange behaviour, will not work
+    flush(); // Unless both are called !
   }
   
   public function __set($name, $value)
