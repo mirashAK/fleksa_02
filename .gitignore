@@ -3,4 +3,4 @@
 *.orig
 .keepme
 /_sql_back
-/nbproject/private/
+nbproject/*
