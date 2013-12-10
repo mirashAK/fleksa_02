@@ -1,15 +1,17 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class User_lib
+class Flx_User_Lib
 {
   public $user_token = null;
   public $user_ip = null;
   public $user_last_activity = null;
+  public $error_code = false;
+  public $error = false;
   
   public function __construct()
   {
-    $this->load->model('flx_session', 'user_session');
-    $this->load->model('flx_user', 'flx_user_mdl');
+    $this->load->model('core/flx_session_mdl', 'user_session');
+    $this->load->model('core/flx_user_mdl', 'flx_user_mdl');
     $this->load->library('encrypt');
     $this->_set_values();
   }
@@ -109,9 +111,8 @@ class User_lib
   }
   
   protected function _set_values()
-  {
+  { 
     $result = $this->user_session->get_user();
-    
     if ($this->user_session->sess_status !== -1)
       foreach ($result as $key=>$value)
       {
@@ -123,15 +124,7 @@ class User_lib
     $this->user_ip = $this->user_session->sess_ip;
     $this->user_last_activity = $this->user_session->sess_last_activity;
     
-//     if ($this->user_id > 0)
-//     {
-//       $this->user_public =  $this->flx_user_mdl->get_public_user_data($this);
-//       $this->user_lang = $this->user_public->u_lang;
-//     }
-//     else
-//     {
-//       $this->user_lang = null;
-//     }
+    $this->user_public = new Safe_Class($this->flx_user_mdl->get_public_user_data($this));
     
     unset($result);
   }

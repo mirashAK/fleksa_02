@@ -5,7 +5,7 @@
 * that can content not initialized poperties
 */
 
-class safeClass
+class Safe_Class
 { 
 
   function __construct($data = null)

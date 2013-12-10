@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Flx_User extends Flx_Model
+class Flx_User_Mdl extends Flx_Model
 { 
   public function do_auth(&$user, $email, $pass)
   {
@@ -105,4 +105,17 @@ class Flx_User extends Flx_Model
     if (!empty($result)) return $result['value'];
     return false;
   }
+  
+  public function check_route_permission($uri)
+  {
+    $db_result = $this->row_object($this->user, 'public_menus', "menu_item_link = '$uri'");
+    if ($db_result->value === false) return false;
+    return true;
+  }
+  
+  public function get_user_reg_signature()
+  {
+    return $this->get_table_signature($this->user, 'public_users');
+  }
+  
 }

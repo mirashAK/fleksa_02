@@ -48,10 +48,10 @@
 $active_group = 'default';
 $active_record = TRUE;
 
-$db['default']['hostname'] = 'iosnisar1.design.isd.dp.ua';
-$db['default']['username'] = 'olku';
-$db['default']['password'] = '123';
-$db['default']['database'] = 'olku_fleksa_test';
+$db['default']['hostname'] = 'localhost';
+$db['default']['username'] = 'exec_user';
+$db['default']['password'] = '3eJEh4xOBi';
+$db['default']['database'] = 'fleksa_test';
 $db['default']['dbdriver'] = 'mysqli';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;
@@ -68,10 +68,10 @@ $db['default']['stricton'] = FALSE;
 // $db['test']['password'] = '3eJEh4xOBi';
 // $db['test']['database'] = 'fleksa_test';
 
-$db['test']['hostname'] = 'iosnisar1.design.isd.dp.ua';
-$db['test']['username'] = 'olku';
-$db['test']['password'] = '123';
-$db['test']['database'] = 'olku_fleksa_test';
+$db['test']['hostname'] = 'localhost';
+$db['test']['username'] = 'exec_user';
+$db['test']['password'] = '3eJEh4xOBi';
+$db['test']['database'] = 'fleksa_test';
 $db['test']['dbdriver'] = 'mysqli';
 $db['test']['dbprefix'] = '';
 $db['test']['pconnect'] = TRUE;

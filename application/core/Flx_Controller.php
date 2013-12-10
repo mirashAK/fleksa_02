@@ -1,21 +1,33 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class Flx_Controller extends CI_Controller {
-
+class Flx_Controller extends CI_Controller 
+{
   protected $view_data = array();
   
-  function __construct()
+  function __construct ($db_alias = 'default')
   {
     parent::__construct();
     $this->view_data['scripts'] = array();
-    require_once APPPATH.'libraries/safeClass.php';
-    require_once APPPATH.'libraries/Form_Builder.php';
+    
+    $this->load->database($db_alias);
+    $this->load->library('core/flx_user_lib', array(), 'user');
+    $this->set_language(isset($this->user->user_public->u_lang)?$this->user->user_public->u_lang:null);
+    
+    $this->view_data['base_url'] = base_url();
+    $this->view_data['sub_url'] = sub_url();
+    $this->view_data['res_url'] = res_url();
+      
+    $this->view_data['res_js'] = res_url('assets/js/');
+    $this->view_data['res_css'] = res_url('assets/css/');
+    $this->view_data['res_img'] = res_url('assets/img/');
+    $this->view_data['res_btsp'] = res_url('assets/bootstrap/');
   }
   
-  protected function parse_in($view_name)
+  protected function parse_in($view_name, $custom_data = null)
   {
     if (!empty($this->parser))
-      return $this->parser->parse($view_name, $this->view_data, TRUE);
+      if (!empty($custom_data)) return $this->parser->parse($view_name, $custom_data, TRUE);
+      else return $this->parser->parse($view_name, $this->view_data, TRUE);
   }
 
   protected function parse_out($view_name)
@@ -64,100 +76,23 @@ class Flx_Controller extends CI_Controller {
       
     $this->view_data['scripts'][] = array('script'=>'<script src="'.$script_name.'"></script>');
   }
-  
+
   protected function redirect($url, $type = 'refresh')
   {
     $this->user_session->save();
+    $this->user->save_public();
     redirect($url, $type);
   }
 }
 
-class Default_Controller extends Flx_Controller
-{
-  function __construct()
-    {
-      parent::__construct();
-      $this->load->database('default');
-      $this->load->library('user_lib', array(), 'user');
-      $this->set_language(/*$this->user->user_lang*/);
-      $this->view_data['base_url'] = base_url();
-      $this->view_data['sub_url'] = sub_url();
-      $this->view_data['res_url'] = res_url();
-    }
-}
+  require_once APPPATH.'controllers/core/front_controller.php';
+  require_once APPPATH.'controllers/core/test_controller.php';
 
-class Test_Controller extends Flx_Controller
-{
-  function __construct()
-    {
-      parent::__construct();
-      $this->load->database('test');
-      $this->load->library('user_lib', array(), 'user');
-      $this->set_language(/*$this->user->user_lang*/);
-      $this->view_data['base_url'] = base_url();
-      $this->view_data['sub_url'] = sub_url();
-      $this->view_data['res_url'] = res_url();
-     }
-}
-
-
-class Admin_Controller extends Default_Controller
-{    
-    function __construct() {
-      parent::__construct();
-      
-      $this->view_data['site_title'] = 'Fleksa';
-      $this->view_data['site_metadata'] = '';
-      $this->view_data['site_header'] = '';
-      $this->view_data['site_footer'] = '';
-      $this->view_data['site_body'] = '';
-    }
-}
-
-class Front_Controller extends Default_Controller
-{
-    function __construct()
-    {
-      parent::__construct();
-      
-      //$this->load->library('session');
-//       if ((int)$this->user->user_id !== 0 && !empty($this->user->user_login) && $this->config->item('sub_domain') !== $this->user->user_login)
-//       {
-//         $this->config->set_item('sub_domain', $this->user->user_login);
-//         redirect(sub_url(uri_string()), 'refresh');
-//       }
-
-      $this->lang->load('site/titles', lang());
-      $this->lang->load('site/forms', lang());
-      $this->view_data['lang'] = $this->lang->language;
-      
-      $this->load->model('users_mdl');
-      
-      $this->view_data['site_title'] = 'StarTask';
-      $this->view_data['site_metadata'] = '';
-      $this->view_data['site_metadata_description'] = '';
-      $this->view_data['site_metadata_keywords'] = '';
-      $this->view_data['site_header'] = '';
-      $this->view_data['site_footer'] = '';
-      $this->view_data['site_body'] = '';
-      
-      $this->view_data['res_js'] = res_url('resources/js/');
-      $this->view_data['res_css'] = res_url('resources/css/');
-      $this->view_data['res_img'] = res_url('resources/img/');
-      
-      $this->lang->load('social', $this->config->item('language'));
-      $this->view_data['social_description'] = $this->lang->line('social_description');
-      $this->view_data['language'] = lang();
-      
-      if ($this->user->user_id === 0)
-        $this->view_data['sign_links'] = $this->parse_in('layouts/'.lang().'/sign_links');
-      else $this->view_data['sign_links'] = $this->parse_in('layouts/'.lang().'/user_links');
-      
-      $this->view_data['header'] = $this->parse_in('layouts/'.$this->config->item('language').'/header_view');
-      $this->view_data['footer'] = $this->parse_in('layouts/'.$this->config->item('language').'/footer_view');
-    }
-}
-
+  require_once APPPATH.'libraries/common/safe_class.php';
+  require_once APPPATH.'libraries/common/xhr_answer.php';
+  
+  require_once APPPATH.'libraries/core/flx_form_builder_lib.php';
+  
 
 /* End of file Flx_Controller.php */
 /* Location: ./application/core/Flx_Controller.php */

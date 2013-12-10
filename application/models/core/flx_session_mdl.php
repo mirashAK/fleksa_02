@@ -1,6 +1,6 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class Flx_Session
+class Flx_Session_Mdl
 {
   private $sess_data = array ();
   private $CI = null;
